@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:p4="http://xamarin.com/mono/android/designer"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical|center_horizontal">
+
+    <TableLayout
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tableLayout1"
+        android:gravity="center_vertical|center_horizontal">
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:gravity="center_vertical">
+            <TextView
+                p4:placeholder="true"
+                android:minWidth="30px"
+                android:minHeight="30px"
+                android:id="@+id/textView1"
+                android:text="Ilość pytań" />
+            <TextView
+                p4:placeholder="true"
+                android:minWidth="30px"
+                android:minHeight="30px"
+                android:id="@+id/textView2" />
+            <NumberPicker
+                android:layout_width="match_parent"
+                android:id="@+id/npQuestion"
+                android:layout_height="wrap_content" />
+        </TableRow>
+    </TableLayout>
+    <Button
+        android:text="START"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnTest" />
+    <Button
+        android:text="KONIEC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnClose" />
+
+</LinearLayout>

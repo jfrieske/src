@@ -1,5 +1,6 @@
 ﻿using System;
 using Android.App;
+using Android.Content;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
@@ -9,7 +10,7 @@ using Android.Widget;
 
 namespace vocab_tester
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme.NoActionBar", MainLauncher = true)]
+    [Activity(Label = "vocabulary tester", Theme = "@style/AppTheme.NoActionBar", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
 
@@ -22,8 +23,27 @@ namespace vocab_tester
             Android.Support.V7.Widget.Toolbar toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
 
-            FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.fab);
-            fab.Click += FabOnClick;
+            FindViewById<Button>(Resource.Id.btnClose).Click += BtnClose_Click;
+            FindViewById<Button>(Resource.Id.btnDictionary).Click += BtnDictionary_Click;
+            FindViewById<Button>(Resource.Id.btnTest).Click += BtnTest_Click;
+
+        }
+
+        private void BtnTest_Click(object sender, EventArgs e)
+        {
+            var intent = new Intent(this, typeof(TestParamsActivity));
+            StartActivity(intent);
+        }
+
+        private void BtnDictionary_Click(object sender, EventArgs e)
+        {
+            var intent = new Intent(this, typeof(DictionaryActivity));  
+            StartActivity(intent);
+        }
+
+        private void BtnClose_Click(object sender, EventArgs e)
+        {
+            FinishAffinity();
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -43,12 +63,6 @@ namespace vocab_tester
             return base.OnOptionsItemSelected(item);
         }
 
-        private void FabOnClick(object sender, EventArgs eventArgs)
-        {
-            View view = (View) sender;
-            Snackbar.Make(view, "Replace with your own action", Snackbar.LengthLong)
-                .SetAction("Action", (Android.Views.View.IOnClickListener)null).Show();
-        }
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
