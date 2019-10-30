@@ -1,0 +1,47 @@
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical|center_horizontal">
+    <Button
+        android:text="Sprawdź wersję"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnCheckVersion" />
+    <TextView
+        android:text="Text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textError"
+        android:gravity="center_horizontal"
+        android:textColor="#ffff0000" />
+    <TextView
+        android:text="Sprawdzam wersję bazy na serwerze..."
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textCurrentAction"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="14.5dp" />
+    <Button
+        android:text="Pobierz bazę"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnDownload"
+        android:layout_marginTop="22.0dp" />
+    <ProgressBar
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/progressWaiting"
+        android:keepScreenOn="true"
+        android:indeterminate="true"
+        android:layout_marginTop="16.5dp"
+        android:layout_marginBottom="11.5dp" />
+    <Button
+        android:text="KONIEC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnClose" />
+
+</LinearLayout>

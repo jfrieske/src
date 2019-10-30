@@ -8,11 +8,6 @@
     android:minHeight="25px"
     android:gravity="center_vertical|center_horizontal">
     <Button
-        android:text="Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnPobierz" />
-    <Button
         android:text="DODAJ KATEGORIĘ"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

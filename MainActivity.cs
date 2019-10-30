@@ -55,8 +55,10 @@ namespace vocab_tester
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
             int id = item.ItemId;
-            if (id == Resource.Id.action_settings)
+            if (id == Resource.Id.action_dictionary_synchro)
             {
+                var intent = new Intent(this, typeof(DictionarySynchroActivity));
+                StartActivity(intent);
                 return true;
             }
 

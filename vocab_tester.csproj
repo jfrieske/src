@@ -62,7 +62,8 @@
     <Compile Include="CategoryNewActivity.cs" />
     <Compile Include="DictionaryDB.cs" />
     <Compile Include="DictionaryActivity.cs" />
-    <Compile Include="DictionaryHttp.cs" />
+    <Compile Include="DictionaryHelper.cs" />
+    <Compile Include="DictionarySynchroActivity.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -133,6 +134,11 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\spinner_item.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\activity_dictionary_synchro.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
