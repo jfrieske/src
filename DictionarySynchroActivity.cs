@@ -1,26 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Serialization;
-using Android.App;
-using Android.Content;
+﻿using Android.App;
 using Android.Net;
 using Android.OS;
-using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using System;
 
 namespace vocab_tester
-{    
+{
     [Activity(Label = "DictionarySynchroActivity")]
     public class DictionarySynchroActivity : Activity
     {
-        private string database_version_remote = "";
-        private string database_file_id_remote = "";
+        private DictionaryXMLHelper.DB_info db_remote_info;
+        private string db_local_info = "";
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -40,31 +31,64 @@ namespace vocab_tester
 
         private async void btnCheckVersion_Click(object sender, EventArgs e)
         {
-            if (!IsOnline())
+            try
             {
-                ShowError("Brak połączenia z internetem");
-                return;
-            }
+                if (!IsOnline())
+                {
+                    throw new Exception("Brak połączenia z internetem");
+                }
 
-            ShowMessageAndStart("Sprawdzam wersję bazy na serwerze");
-            if (! await DownloadVersion())
-            {
-                return;
-            }
-            if (1==1)
-            {
-                ShowMessageAndStop(string.Format("Na serwerze jest nowa wersja numer: {0}", database_version_remote));
+                ShowMessageAndStart("Sprawdzam wersję bazy na serwerze");
+                FindViewById<Button>(Resource.Id.btnCheckVersion).Visibility = ViewStates.Gone;
+                DictionaryXMLHelper dictionaryXMLHelper = new DictionaryXMLHelper();
+                db_remote_info = await dictionaryXMLHelper.DownloadVersion();
+
+                DictionaryDBHelper dictionaryDBHelper = new DictionaryDBHelper();
+                db_local_info = dictionaryDBHelper.GetVersion();
+
+                if (db_local_info == db_remote_info.version)
+                {
+                    ShowMessageAndStop(string.Format("Posiadasz aktualną wersję bazy danych."));
+                    FindViewById<Button>(Resource.Id.btnCheckVersion).Visibility = ViewStates.Gone;
+                    return;
+                }
+
+                ShowMessageAndStop(string.Format("Na serwerze jest nowa wersja numer: {0}", db_remote_info.version));
                 FindViewById<Button>(Resource.Id.btnCheckVersion).Visibility = ViewStates.Gone;
                 FindViewById<Button>(Resource.Id.btnDownload).Visibility = ViewStates.Visible;
             }
+            catch (Exception ex)
+            {
+                FindViewById<Button>(Resource.Id.btnCheckVersion).Visibility = ViewStates.Visible;
+                ShowError(ex.Message);
+            }
         }
 
-        private void btnDownload_Click(object sender, EventArgs e)
+        private async void btnDownload_Click(object sender, EventArgs e)
         {
-            if (!IsOnline())
+            try
             {
-                ShowError("Brak połączenia z internetem");
-                return;
+                if (!IsOnline())
+                {
+                    throw new Exception("Brak połączenia z internetem");
+                }
+
+                ShowMessageAndStart("Pobieram bazę danych");
+                FindViewById<Button>(Resource.Id.btnDownload).Visibility = ViewStates.Gone;
+                DictionaryXMLHelper dictionaryXMLHelper = new DictionaryXMLHelper();
+                db_remote_info = await dictionaryXMLHelper.DownloadVersion();
+
+                DictionaryDBHelper dictionaryDBHelper = new DictionaryDBHelper();
+                dictionaryDBHelper.SetVersion(db_remote_info.version);                
+
+                ShowMessageAndStop(string.Format("Baza została zsynchronizowana"));
+                FindViewById<Button>(Resource.Id.btnCheckVersion).Visibility = ViewStates.Gone;
+                FindViewById<Button>(Resource.Id.btnDownload).Visibility = ViewStates.Gone;
+            }
+            catch (Exception ex)
+            {
+                FindViewById<Button>(Resource.Id.btnDownload).Visibility = ViewStates.Visible;
+                ShowError(ex.Message);
             }
         }
        
@@ -79,37 +103,6 @@ namespace vocab_tester
             return cm.ActiveNetworkInfo == null ? false : cm.ActiveNetworkInfo.IsConnected;
         }
 
-        private async Task<Boolean> DownloadVersion()
-        {
-            try
-            {
-                string page = "http://drive.google.com/uc?export=download&id=1Em6g-Yvgb-eDboBBtK_phXe0OCqDNjZO";
-                using (HttpClient client = new HttpClient())
-                using (HttpResponseMessage response = await client.GetAsync(page))
-                using (HttpContent content = response.Content)
-                {
-                    System.IO.Stream xml_stream = await content.ReadAsStreamAsync();
-
-                    XmlSerializer ser = new XmlSerializer(typeof(DictionaryXML_info.Info));
-                    DictionaryXML_info.Info info;
-                    using (XmlReader reader = XmlReader.Create(xml_stream))
-                    {
-                        info = (DictionaryXML_info.Info)ser.Deserialize(reader);
-                    }
-
-                    database_version_remote = info.version.number;
-                    database_file_id_remote = info.file.id;
-                    return true;
-                }
-
-            }
-            catch (Exception e)
-            {
-                ShowError(e.Message);
-                return false;
-            }
-        }
-
         private void ShowError(string msg)
         {
             FindViewById<TextView>(Resource.Id.textCurrentAction).Visibility = ViewStates.Gone;
@@ -118,17 +111,17 @@ namespace vocab_tester
             FindViewById<TextView>(Resource.Id.textError).Text = msg;
         }
 
-        private void ShowMessageAndStop(string msg)
-        {
-            ShowMessage(msg);
-            FindViewById<ProgressBar>(Resource.Id.progressWaiting).Visibility = ViewStates.Gone;            
-        }
-
         private void ShowMessageAndStart(string msg)
         {
             ShowMessage(msg);
             FindViewById<ProgressBar>(Resource.Id.progressWaiting).Visibility = ViewStates.Visible;
         }
+
+        private void ShowMessageAndStop(string msg)
+        {
+            ShowMessage(msg);
+            FindViewById<ProgressBar>(Resource.Id.progressWaiting).Visibility = ViewStates.Gone;            
+        }        
 
         private void ShowMessage(string msg)
         {

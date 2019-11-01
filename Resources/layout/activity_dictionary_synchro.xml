@@ -10,6 +10,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnCheckVersion" />
+    <Button
+        android:text="Pobierz bazę"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnDownload"
+        android:layout_marginTop="22.0dp" />
     <TextView
         android:text="Text"
         android:layout_width="match_parent"
@@ -17,6 +23,7 @@
         android:id="@+id/textError"
         android:gravity="center_horizontal"
         android:textColor="#ffff0000" />
+
     <TextView
         android:text="Sprawdzam wersję bazy na serwerze..."
         android:layout_width="match_parent"
@@ -24,12 +31,7 @@
         android:id="@+id/textCurrentAction"
         android:gravity="center_horizontal"
         android:layout_marginTop="14.5dp" />
-    <Button
-        android:text="Pobierz bazę"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnDownload"
-        android:layout_marginTop="22.0dp" />
+    
     <ProgressBar
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"

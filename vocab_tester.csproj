@@ -60,9 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CategoryNewActivity.cs" />
-    <Compile Include="DictionaryDB.cs" />
+    <Compile Include="DictionaryDBHelper.cs" />
     <Compile Include="DictionaryActivity.cs" />
-    <Compile Include="DictionaryHelper.cs" />
+    <Compile Include="DictionaryXMLHelper.cs" />
     <Compile Include="DictionarySynchroActivity.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
