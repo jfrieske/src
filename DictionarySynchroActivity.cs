@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Views;
 using Android.Widget;
 using System;
+using System.Xml;
 
 namespace vocab_tester
 {
@@ -12,6 +13,7 @@ namespace vocab_tester
     {
         private DictionaryXMLHelper.DB_info db_remote_info;
         private string db_local_info = "";
+        private XmlDocument xml_doc;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -76,11 +78,15 @@ namespace vocab_tester
                 ShowMessageAndStart("Pobieram bazę danych");
                 FindViewById<Button>(Resource.Id.btnDownload).Visibility = ViewStates.Gone;
                 DictionaryXMLHelper dictionaryXMLHelper = new DictionaryXMLHelper();
-                db_remote_info = await dictionaryXMLHelper.DownloadVersion();
+                xml_doc = await dictionaryXMLHelper.DownloadDictionary(db_remote_info.file_link);
+                ShowMessageAndStart("Synchronizuję bazę danych");
+                foreach (XmlElement xml_category in xml_doc.GetElementsByTagName("category"))
+                {
+                    AnalyzeCategory("", xml_category);
+                }
 
                 DictionaryDBHelper dictionaryDBHelper = new DictionaryDBHelper();
-                dictionaryDBHelper.SetVersion(db_remote_info.version);                
-
+                //dictionaryDBHelper.SetVersion(db_remote_info.version);                
                 ShowMessageAndStop(string.Format("Baza została zsynchronizowana"));
                 FindViewById<Button>(Resource.Id.btnCheckVersion).Visibility = ViewStates.Gone;
                 FindViewById<Button>(Resource.Id.btnDownload).Visibility = ViewStates.Gone;
@@ -128,6 +134,28 @@ namespace vocab_tester
             FindViewById<TextView>(Resource.Id.textError).Visibility = ViewStates.Gone;
             FindViewById<TextView>(Resource.Id.textCurrentAction).Visibility = ViewStates.Visible;
             FindViewById<TextView>(Resource.Id.textCurrentAction).Text = msg;
+        }
+
+        private void AnalyzeCategory(string parent_name, XmlElement el)
+        {
+            string category_name = string.Format("{0}.{1}", parent_name, el.GetAttribute("name"));
+            foreach (XmlElement xml_category in el.GetElementsByTagName("category"))
+            {
+                AnalyzeCategory(category_name, xml_category);
+            }
+            foreach (XmlElement xml_question in el.GetElementsByTagName("question"))
+            {
+                AnalyzeQuestion(category_name, xml_question);
+            }
+        }
+
+        private void AnalyzeQuestion(string category_name, XmlElement el)
+        {
+            DictionaryXMLHelper.QuestionXML questionXML = new DictionaryXMLHelper.QuestionXML(category_name, el.GetAttribute("value"));
+            foreach (XmlElement xml_answer in el.GetElementsByTagName("answer"))
+            {
+                questionXML.AddAnswer(xml_answer.GetAttribute("value"));
+            }
         }
 
     }

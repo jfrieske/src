@@ -45,7 +45,7 @@ namespace vocab_tester
         public DictionaryDBHelper()
         {
             db = new SQLiteConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "dictionary.db3"));
-            //db = new SQLiteConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "dictionary.db3"));
+            //db = new SQLiteConnection(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "dictionary.db3"), SQLiteOpenFlags.Create, true);
         }
 
         private Config GetVersionRow()
