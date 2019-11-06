@@ -29,7 +29,7 @@ namespace vocab_tester
             public string Value { get; set; }
             
         }
-
+         
         [Table("Category")]
         public class Category
         {
