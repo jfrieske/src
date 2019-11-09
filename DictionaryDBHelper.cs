@@ -50,15 +50,21 @@ namespace vocab_tester
             public long Category_id { get; set; }
         }
 
+        [Table("Answer")]
+        public class Answer
+        {
+            [PrimaryKey, AutoIncrement]
+            public long Id { get; set; }
+            [MaxLength(20)]
+            public string Value { get; set; }
+            public long Question_id { get; set; }
+        }
+
         public DictionaryDBHelper()
         {
             db = new SQLiteConnection(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "dictionary.db3"));
             //db = new SQLiteConnection(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "dictionary.db3"), SQLiteOpenFlags.Create, true);
-            db.CreateTable<Config>();
-            db.CreateTable<Category>();
-            db.CreateTable<Question>();
-
-            //Truncate();
+            CreateTables();
         }
 
         private Config GetVersionRow()
@@ -99,12 +105,25 @@ namespace vocab_tester
             db.Update(versionRow);
         }
 
-        public void Truncate()
+        public void ReCreateTables()
         {
-            var cmd = db.CreateCommand("delete from Category");
+            var cmd = db.CreateCommand("drop table Config");
             cmd.ExecuteNonQuery();
-            cmd.CommandText = ("delete from Question");
+            cmd.CommandText = ("drop table Category");
             cmd.ExecuteNonQuery();
+            cmd.CommandText = ("drop table Question");
+            cmd.ExecuteNonQuery();
+            cmd.CommandText = ("drop table Answer");
+            cmd.ExecuteNonQuery();
+            CreateTables();
+        }
+
+        public void CreateTables()
+        {
+            db.CreateTable<Config>();
+            db.CreateTable<Category>();
+            db.CreateTable<Question>();
+            db.CreateTable<Answer>();
         }
 
         public long AddCategory(long? parent_id, string name)
@@ -137,6 +156,25 @@ namespace vocab_tester
                 newQuestion.Name = name;
                 newQuestion.Category_id = category_id;
                 db.Insert(newQuestion);
+                return GetLastKeyValue();
+            }
+            else
+            {
+                return db_row.Id;
+            }
+        }
+
+        public long AddAnswer(long question_id, string value)
+        {
+            var db_row = (from s in db.Table<Answer>()
+                          where s.Value.Equals(value) && s.Question_id.Equals(question_id)
+                          select s).FirstOrDefault();
+            if (db_row == null)
+            {
+                var newAnswer = new Answer();
+                newAnswer.Value = value;
+                newAnswer.Question_id = question_id;
+                db.Insert(newAnswer);
                 return GetLastKeyValue();
             }
             else

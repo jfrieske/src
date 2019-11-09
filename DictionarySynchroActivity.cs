@@ -29,7 +29,23 @@ namespace vocab_tester
             FindViewById<Button>(Resource.Id.btnClose).Click += BtnClose_Click;
             FindViewById<Button>(Resource.Id.btnCheckVersion).Click += btnCheckVersion_Click;
             FindViewById<Button>(Resource.Id.btnDownload).Click += btnDownload_Click;
-                       
+            FindViewById<Button>(Resource.Id.btnDeleteTables).Click += btnDeleteTables_Click;
+
+        }
+
+        private void btnDeleteTables_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                DictionaryDBHelper dictionaryDBHelper = new DictionaryDBHelper();
+                dictionaryDBHelper.ReCreateTables();
+                Toast.MakeText(this, "Baza została usunięta", ToastLength.Short).Show();
+
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+            }
         }
 
         private async void btnCheckVersion_Click(object sender, EventArgs e)
@@ -81,15 +97,18 @@ namespace vocab_tester
                 DictionaryXMLHelper dictionaryXMLHelper = new DictionaryXMLHelper();
                 xml_doc = await dictionaryXMLHelper.DownloadDictionary(db_remote_info.file_link);
                 ShowMessageAndStart("Synchronizuję bazę danych");
+                FindViewById<Button>(Resource.Id.btnDeleteTables).Visibility = ViewStates.Gone;
                 dictionaryDBHelper_import = new DictionaryDBHelper();
                 foreach (XmlElement xml_category in xml_doc.GetElementsByTagName("category"))
                 {
                     AddCategory(null, "", xml_category);
-                }                
-                //dictionaryDBHelper_import.SetVersion(db_remote_info.version);                
+                }
+                dictionaryDBHelper_import.SetVersion(db_remote_info.version);
                 ShowMessageAndStop(string.Format("Baza została zsynchronizowana"));
                 FindViewById<Button>(Resource.Id.btnCheckVersion).Visibility = ViewStates.Gone;
                 FindViewById<Button>(Resource.Id.btnDownload).Visibility = ViewStates.Gone;
+
+
             }
             catch (Exception ex)
             {
@@ -97,7 +116,7 @@ namespace vocab_tester
                 ShowError(ex.Message);
             }
         }
-       
+
         private void BtnClose_Click(object sender, EventArgs e)
         {
             Finish();
@@ -126,8 +145,8 @@ namespace vocab_tester
         private void ShowMessageAndStop(string msg)
         {
             ShowMessage(msg);
-            FindViewById<ProgressBar>(Resource.Id.progressWaiting).Visibility = ViewStates.Gone;            
-        }        
+            FindViewById<ProgressBar>(Resource.Id.progressWaiting).Visibility = ViewStates.Gone;
+        }
 
         private void ShowMessage(string msg)
         {
@@ -135,6 +154,8 @@ namespace vocab_tester
             FindViewById<TextView>(Resource.Id.textCurrentAction).Visibility = ViewStates.Visible;
             FindViewById<TextView>(Resource.Id.textCurrentAction).Text = msg;
         }
+
+
 
         private void AddCategory(long? parent_id, string parent_name, XmlElement el)
         {
@@ -156,8 +177,14 @@ namespace vocab_tester
             long question_id = dictionaryDBHelper_import.AddQuestion(category_id, question_name);
             foreach (XmlElement xml_answer in el.GetElementsByTagName("answer"))
             {
-                //questionXML.AddAnswer(xml_answer.GetAttribute("value"));
+                AddAnswer(question_id, xml_answer);
             }
+        }
+
+        private void AddAnswer(long question_id, XmlElement el)
+        {
+            string answer_value = el.GetAttribute("value");
+            dictionaryDBHelper_import.AddAnswer(question_id, answer_value);
         }
 
     }
