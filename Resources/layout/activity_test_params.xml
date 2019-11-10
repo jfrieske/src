@@ -3,48 +3,114 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:p4="http://xamarin.com/mono/android/designer"
     android:orientation="vertical"
+    android:minWidth="25px"
+    android:minHeight="25px"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_vertical|center_horizontal">
+    android:id="@+id/linearLayout1">
 
-    <TableLayout
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tableLayout1"
-        android:gravity="center_vertical|center_horizontal">
-        <TableRow
-            android:id="@+id/tableRow1"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:gravity="center_vertical">
-            <TextView
-                p4:placeholder="true"
-                android:minWidth="30px"
-                android:minHeight="30px"
-                android:id="@+id/textView1"
-                android:text="Ilość pytań" />
-            <TextView
-                p4:placeholder="true"
-                android:minWidth="30px"
-                android:minHeight="30px"
-                android:id="@+id/textView2" />
-            <NumberPicker
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="18.0dp"
+        android:id="@+id/linearLayout2"
+        android:layout_marginLeft="21.5dp"
+        android:layout_marginRight="25.5dp"
+        android:layout_marginBottom="22.0dp">
+        <ScrollView
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/scrollCategories"
+            >
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:id="@+id/npQuestion"
-                android:layout_height="wrap_content" />
-        </TableRow>
-    </TableLayout>
-    <Button
-        android:text="START"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnTest" />
-    <Button
-        android:text="KONIEC"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnClose" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
+                <CheckedTextView
+                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/checkedTextView1"
+                    android:text="kolo bolo" />
+                <CheckedTextView
+                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/checkedTextView2"
+                    android:text="kolo bolo" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="24.5dp">
+        <TableLayout
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tableLayout1"
+            android:gravity="center_vertical|center_horizontal">
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:gravity="center_vertical">
+                <TextView
+                    p4:placeholder="true"
+                    android:minWidth="30px"
+                    android:minHeight="30px"
+                    android:id="@+id/textView1"
+                    android:text="Ilość pytań:"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="13.0dp" />
+                <NumberPicker
+                    android:layout_width="wrap_content"
+                    android:id="@+id/npQuestions"
+                    android:layout_height="65dp"/>
+            </TableRow>
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="16dp"
+                android:minHeight="16dp"/>
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:gravity="center_vertical">
+                <TextView
+                    p4:placeholder="true"
+                    android:minWidth="30px"
+                    android:minHeight="30px"
+                    android:id="@+id/textView1"
+                    android:text="Ilość odpowiedzi:"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="11.5dp" />
+                <NumberPicker
+                    android:layout_width="wrap_content"
+                    android:id="@+id/npAnswers"
+                    android:layout_height="65dp" />
+            </TableRow>
+        </TableLayout>
+        <Button
+            android:text="START"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnTest" />
+        <Button
+            android:text="KONIEC"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnClose" />
+
+    </LinearLayout>
 </LinearLayout>
+
