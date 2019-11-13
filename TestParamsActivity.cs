@@ -36,13 +36,30 @@ namespace vocab_tester
 
             FindViewById<Button>(Resource.Id.btnClose).Click += BtnClose_Click;
             FindViewById<Button>(Resource.Id.btnTest).Click += BtnTest_Click;
-            FindViewById<CheckedTextView>(Resource.Id.checkedTextView1).Click += CheckCategory_Click;
-            FindViewById<CheckedTextView>(Resource.Id.checkedTextView2).Click += CheckCategory_Click;
+            FindViewById<CheckBox>(Resource.Id.checkCategory_1).Click += CheckCategory_Click;            
+            FindViewById<CheckBox>(Resource.Id.checkCategory_2).Click += CheckCategory_Click;
+            FindViewById<ImageButton>(Resource.Id.btnCategory_1).Click += BtnCategory_Click;
+            FindViewById<ImageButton>(Resource.Id.btnCategory_1).Tag = false;
+            FindViewById<ImageButton>(Resource.Id.btnCategory_2).Click += BtnCategory_Click;
+            FindViewById<ImageButton>(Resource.Id.btnCategory_2).Tag = false;
+        }
+
+        private void BtnCategory_Click(object sender, EventArgs e)
+        {            
+            if (Convert.ToBoolean(((ImageButton)sender).Tag))
+            {
+                ((ImageButton)sender).SetImageResource(Resource.Drawable.plus_16);
+            }
+            else
+            {
+                ((ImageButton)sender).SetImageResource(Resource.Drawable.minus_16);
+            }
+            ((ImageButton)sender).Tag = !Convert.ToBoolean(((ImageButton)sender).Tag);
         }
 
         private void CheckCategory_Click(object sender, EventArgs e)
         {
-            ((CheckedTextView)sender).Checked = !((CheckedTextView)sender).Checked;
+            //((CheckBox)sender).Checked = !((CheckBox)sender).Checked;
         }
 
         private void BtnClose_Click(object sender, EventArgs e)

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:p4="http://xamarin.com/mono/android/designer"
@@ -24,25 +24,99 @@
             android:minHeight="25px"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/scrollCategories"
-            >
+            android:id="@+id/scrollCategories">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-
-                <CheckedTextView
-                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:minWidth="25px"
+                    android:minHeight="25px"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/checkedTextView1"
-                    android:text="kolo bolo" />
-                <CheckedTextView
-                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:id="@+id/linearCategory_1"
+                    android:gravity="center_vertical">
+                    <ImageButton
+                        android:src="@drawable/plus_16"
+                        android:background="@android:color/transparent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/btnCategory_1"/>
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:layout_marginLeft="5.5dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Kategoria 1"/>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="40dp"
+                            android:layout_height="match_parent">
+                            <CheckBox
+                                android:id="@+id/checkCategory_1"
+                                android:layout_height="wrap_content"
+                                android:checked="false"
+                                android:layout_gravity="center_vertical"
+                                android:layout_width="wrap_content" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:minWidth="25px"
+                    android:minHeight="25px"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/checkedTextView2"
-                    android:text="kolo bolo" />
+                    android:layout_height="wrap_content"
+                    android:id="@+id/linearCategory_2"
+                    android:gravity="center_vertical">
+                    <ImageButton
+                        android:src="@drawable/plus_16"
+                        android:background="@android:color/transparent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/btnCategory_2"
+                        android:layout_marginLeft="9.0dp" />
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:layout_marginLeft="5.5dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Kategoria 2"/>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="40dp"
+                            android:layout_height="match_parent">
+                            <CheckBox
+                                android:id="@+id/checkCategory_2"
+                                android:layout_height="wrap_content"
+                                android:checked="false"
+                                android:layout_gravity="center_vertical"
+                                android:layout_width="wrap_content" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -113,4 +187,3 @@
 
     </LinearLayout>
 </LinearLayout>
-
