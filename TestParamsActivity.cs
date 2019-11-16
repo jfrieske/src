@@ -42,19 +42,65 @@ namespace vocab_tester
             FindViewById<ImageButton>(Resource.Id.btnCategory_1).Tag = false;
             FindViewById<ImageButton>(Resource.Id.btnCategory_2).Click += BtnCategory_Click;
             FindViewById<ImageButton>(Resource.Id.btnCategory_2).Tag = false;
+            GenerateCategoryTree();
+        }
+
+        private void GenerateCategoryTree()
+        {
+            DictionaryDBHelper dbHelper = new DictionaryDBHelper();
+            foreach(DictionaryDBHelper.Category category in dbHelper.GetCategories(null))
+            {
+                BuildCategoryRow(category.Id, null, category.Name, 0, false);
+                if (GenerateSubcategories(dbHelper, category.Id, 0))
+                {
+                    AddExpandButton(category.Id, true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dbHelper"></param>
+        /// <param name="parent_id"></param>
+        /// <returns>true jeśli są podkategorie</returns>
+        private bool GenerateSubcategories(DictionaryDBHelper dbHelper, long parent_id, long parents_count)
+        {
+            ++parents_count;
+            bool hasChildren = false;
+            foreach (DictionaryDBHelper.Category category in dbHelper.GetCategories(parent_id))
+            {
+                BuildCategoryRow(category.Id, category.Parent_id, category.Name, parents_count, false);
+                if (GenerateSubcategories(dbHelper, category.Id, parents_count))
+                {
+                    AddExpandButton(category.Id, true);
+                }
+                hasChildren = true;
+            }
+            return hasChildren;
+        }
+
+        private void BuildCategoryRow(long id, long? parent_id, string name, long parents_count, bool is_checked)
+        {
+
+        }
+
+        private void AddExpandButton(long id, bool expanded)
+        {
+
         }
 
         private void BtnCategory_Click(object sender, EventArgs e)
-        {            
+        {
+            ((ImageButton)sender).Tag = !Convert.ToBoolean(((ImageButton)sender).Tag);
             if (Convert.ToBoolean(((ImageButton)sender).Tag))
-            {
-                ((ImageButton)sender).SetImageResource(Resource.Drawable.plus_16);
-            }
-            else
             {
                 ((ImageButton)sender).SetImageResource(Resource.Drawable.minus_16);
             }
-            ((ImageButton)sender).Tag = !Convert.ToBoolean(((ImageButton)sender).Tag);
+            else
+            {
+                ((ImageButton)sender).SetImageResource(Resource.Drawable.plus_16);
+            }            
         }
 
         private void CheckCategory_Click(object sender, EventArgs e)

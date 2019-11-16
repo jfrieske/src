@@ -99,9 +99,9 @@ namespace vocab_tester
                 ShowMessageAndStart("Synchronizuję bazę danych");
                 FindViewById<Button>(Resource.Id.btnDeleteTables).Visibility = ViewStates.Gone;
                 dictionaryDBHelper_import = new DictionaryDBHelper();
-                foreach (XmlElement xml_category in xml_doc.GetElementsByTagName("category"))
+                foreach (XmlNode xml_category in xml_doc.SelectSingleNode("dictionary").SelectNodes("category"))
                 {
-                    AddCategory(null, "", xml_category);
+                    AddCategory(null, (XmlElement)xml_category);
                 }
                 dictionaryDBHelper_import.SetVersion(db_remote_info.version);
                 ShowMessageAndStop(string.Format("Baza została zsynchronizowana"));
@@ -157,28 +157,43 @@ namespace vocab_tester
 
 
 
-        private void AddCategory(long? parent_id, string parent_name, XmlElement el)
+        private void AddCategory(long? parent_id, XmlElement el)
         {
             string category_name = el.GetAttribute("name"); // string.Format("{0}.{1}", parent_name, el.GetAttribute("name"));
             long category_id = dictionaryDBHelper_import.AddCategory(parent_id, category_name);
-            foreach (XmlElement xml_category in el.GetElementsByTagName("category"))
+            foreach (XmlNode xml_category in el.SelectNodes("category"))
             {
-                AddCategory(category_id, category_name, xml_category);
+                AddCategory(category_id, (XmlElement)xml_category);
             }
-            foreach (XmlElement xml_question in el.GetElementsByTagName("question"))
+            /*
+                        foreach (XmlElement xml_category in el.GetElementsByTagName("category"))
+                        {
+                            AddCategory(category_id, xml_category);
+                        }*/
+
+            foreach (XmlNode xml_question in el.SelectNodes("question"))
+            {
+                AddQuestion(category_id, (XmlElement)xml_question);
+            }
+
+            /*foreach (XmlElement xml_question in el.GetElementsByTagName("question"))
             {
                 AddQuestion(category_id, xml_question);
-            }
+            }*/
         }
 
         private void AddQuestion(long category_id, XmlElement el)
         {
             string question_name = el.GetAttribute("value");
             long question_id = dictionaryDBHelper_import.AddQuestion(category_id, question_name);
-            foreach (XmlElement xml_answer in el.GetElementsByTagName("answer"))
+            foreach (XmlNode xml_answer in el.SelectNodes("answer"))
+            {
+                AddAnswer(question_id, (XmlElement)xml_answer);
+            }
+            /*foreach (XmlElement xml_answer in el.GetElementsByTagName("answer"))
             {
                 AddAnswer(question_id, xml_answer);
-            }
+            }*/
         }
 
         private void AddAnswer(long question_id, XmlElement el)

@@ -34,7 +34,7 @@ namespace vocab_tester
         public class Category
         {
             [PrimaryKey, AutoIncrement]
-            public int Id { get; set; }
+            public long Id { get; set; }
             [MaxLength(20)]
             public string Name { get; set; }
             public long? Parent_id { get; set; }
@@ -66,6 +66,8 @@ namespace vocab_tester
             //db = new SQLiteConnection(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "dictionary.db3"), SQLiteOpenFlags.Create, true);
             CreateTables();
         }
+
+        #region db_utils
 
         private Config GetVersionRow()
         {
@@ -126,6 +128,10 @@ namespace vocab_tester
             db.CreateTable<Answer>();
         }
 
+        #endregion
+
+        #region db_structure
+
         public long AddCategory(long? parent_id, string name)
         {            
             var db_row = (from s in db.Table<Category>()
@@ -183,13 +189,23 @@ namespace vocab_tester
             }
         }
 
-        public void GetCategories(long? parent_id, string name)
-        {
-            var db_rows = (from s in db.Table<Category>()                          
-                          select s);            
-        }
+        #endregion
 
-        
+        public List<Category> GetCategories(long? parent_id)
+        {
+            List<Category> categories = new List<Category>();
+            var db_rows = (from s in db.Table<Category>()
+                           where (s.Parent_id == parent_id || (parent_id == null && s.Parent_id == null))
+                           select s);
+            if (db_rows != null)
+            {                
+                foreach (Category category in db_rows)
+                {
+                    categories.Add(category);
+                }
+            }
+            return categories;
+        }        
     }
 }
  
