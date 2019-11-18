@@ -28,7 +28,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:id="@+id/linearCategories">
                 <LinearLayout
                     android:orientation="horizontal"
                     android:minWidth="25px"
@@ -79,14 +80,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/linearCategory_2"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:layout_marginLeft="9.0dp">
                     <ImageButton
                         android:src="@drawable/plus_16"
                         android:background="@android:color/transparent"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/btnCategory_2"
-                        android:layout_marginLeft="9.0dp" />
+                         />
                     <LinearLayout
                         android:orientation="horizontal"
                         android:layout_width="match_parent"
@@ -154,7 +156,16 @@
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="16dp"
-                android:minHeight="16dp"/>
+                android:minHeight="16dp">
+                <TextView
+                    android:minWidth="30px"
+                    android:minHeight="30px"
+                    android:id="@+id/textView2" />
+                <TextView
+                    android:minWidth="30px"
+                    android:minHeight="30px"
+                    android:id="@+id/textView3" />
+            </TableRow>
             <TableRow
                 android:id="@+id/tableRow1"
                 android:layout_height="wrap_content"
