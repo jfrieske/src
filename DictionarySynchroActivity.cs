@@ -160,7 +160,9 @@ namespace vocab_tester
         private void AddCategory(long? parent_id, XmlElement el)
         {
             string category_name = el.GetAttribute("name"); // string.Format("{0}.{1}", parent_name, el.GetAttribute("name"));
-            long category_id = dictionaryDBHelper_import.AddCategory(parent_id, category_name);
+            string is_sealed_txt = el.GetAttribute("sealed");
+            bool is_sealed = (is_sealed_txt != "");
+            long category_id = dictionaryDBHelper_import.AddCategory(parent_id, category_name, is_sealed);
             foreach (XmlNode xml_category in el.SelectNodes("category"))
             {
                 AddCategory(category_id, (XmlElement)xml_category);
@@ -185,7 +187,9 @@ namespace vocab_tester
         private void AddQuestion(long category_id, XmlElement el)
         {
             string question_name = el.GetAttribute("value");
-            long question_id = dictionaryDBHelper_import.AddQuestion(category_id, question_name);
+            string is_sealed_txt = el.GetAttribute("sealed");
+            bool is_sealed = (is_sealed_txt != "");
+            long question_id = dictionaryDBHelper_import.AddQuestion(category_id, question_name, is_sealed);
             foreach (XmlNode xml_answer in el.SelectNodes("answer"))
             {
                 AddAnswer(question_id, (XmlElement)xml_answer);

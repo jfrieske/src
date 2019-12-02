@@ -38,6 +38,8 @@ namespace vocab_tester
             [MaxLength(20)]
             public string Name { get; set; }
             public long? Parent_id { get; set; }
+
+            public bool Is_sealed { get; set; }
         }
 
         [Table("Question")]
@@ -51,6 +53,7 @@ namespace vocab_tester
             public long Total_answers { get; set; }
             public long Wrong_answers { get; set; }
             public DateTime Last_answered { get; set; }
+            public bool Is_sealed { get; set; }
         }
 
         [Table("Answer")]
@@ -160,7 +163,7 @@ namespace vocab_tester
 
         #region db_structure
 
-        public long AddCategory(long? parent_id, string name)
+        public long AddCategory(long? parent_id, string name, bool is_sealed)
         {            
             var db_row = (from s in db.Table<Category>()
                        where (s.Name.Equals(name)) && (s.Parent_id == parent_id || (parent_id == null && s.Parent_id == null))
@@ -170,6 +173,7 @@ namespace vocab_tester
                 var newCategory = new Category();
                 newCategory.Name = name;
                 newCategory.Parent_id = parent_id;
+                newCategory.Is_sealed = is_sealed;
                 db.Insert(newCategory);
                 return GetLastKeyValue();
             }
@@ -179,7 +183,7 @@ namespace vocab_tester
             }
         }
 
-        public long AddQuestion(long category_id, string name)
+        public long AddQuestion(long category_id, string name, bool is_sealed)
         {
             var db_row = (from s in db.Table<Question>()
                           where s.Name.Equals(name) && s.Category_id.Equals(category_id)
@@ -189,6 +193,7 @@ namespace vocab_tester
                 var newQuestion = new Question();
                 newQuestion.Name = name;
                 newQuestion.Category_id = category_id;
+                newQuestion.Is_sealed = is_sealed;
                 newQuestion.Total_answers = 0;
                 newQuestion.Wrong_answers = 0;
                 newQuestion.Last_answered = DateTime.Now;
