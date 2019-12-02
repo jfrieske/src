@@ -134,7 +134,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tableLayout1"
-            android:gravity="center_vertical|center_horizontal">
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_marginBottom="10dp">
             <TableRow
                 android:id="@+id/tableRow1"
                 android:layout_height="wrap_content"
@@ -145,13 +146,14 @@
                     android:minWidth="30px"
                     android:minHeight="30px"
                     android:id="@+id/textView1"
-                    android:text="Ilość pytań:"
+                    android:text="Ilość powtórek:"
                     android:layout_width="wrap_content"
                     android:layout_marginRight="13.0dp" />
                 <NumberPicker
                     android:layout_width="wrap_content"
-                    android:id="@+id/npQuestions"
-                    android:layout_height="65dp"/>
+                    android:id="@+id/npOldQuestions"
+                    android:layout_height="65dp"
+                    android:descendantFocusability="blocksDescendants"/>
             </TableRow>
             <TableRow
                 android:layout_width="match_parent"
@@ -176,13 +178,14 @@
                     android:minWidth="30px"
                     android:minHeight="30px"
                     android:id="@+id/textView1"
-                    android:text="Ilość odpowiedzi:"
+                    android:text="Ilość nowych słówek:"
                     android:layout_width="wrap_content"
                     android:layout_marginRight="11.5dp" />
                 <NumberPicker
                     android:layout_width="wrap_content"
-                    android:id="@+id/npAnswers"
-                    android:layout_height="65dp" />
+                    android:id="@+id/npNewQuestions"
+                    android:layout_height="65dp"
+                    android:descendantFocusability="blocksDescendants"/>
             </TableRow>
         </TableLayout>
         <Button
@@ -194,7 +197,8 @@
             android:text="KONIEC"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/btnClose" />
+            android:id="@+id/btnClose"
+            android:layout_gravity="center_horizontal|center_vertical" />
 
     </LinearLayout>
 </LinearLayout>

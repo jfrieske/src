@@ -9,6 +9,7 @@ using Android.OS;
 using Android.Preferences;
 using Android.Runtime;
 using Android.Views;
+using Android.Views.InputMethods;
 using Android.Widget;
 
 namespace vocab_tester
@@ -16,8 +17,8 @@ namespace vocab_tester
     [Activity(Label = "TestParamsActivity")]
     public class TestParamsActivity : Activity
     {
-        private NumberPicker npQuestions;
-        private NumberPicker npAnswers;
+        private NumberPicker npOldQuestions;
+        private NumberPicker npNewQuestions;
         private ISharedPreferences prefs;
         private LinearLayout linearCategories;
         protected override void OnCreate(Bundle savedInstanceState)
@@ -26,14 +27,14 @@ namespace vocab_tester
             SetContentView(Resource.Layout.activity_test_params);
 
             prefs = PreferenceManager.GetDefaultSharedPreferences(ApplicationContext);
-            npQuestions = (NumberPicker)FindViewById(Resource.Id.npQuestions);
-            npQuestions.MinValue = 1;
-            npQuestions.MaxValue = 99;
-            npQuestions.Value = prefs.GetInt("npQuestions_Value", 10);
-            npAnswers = (NumberPicker)FindViewById(Resource.Id.npAnswers);
-            npAnswers.MinValue = 1;
-            npAnswers.MaxValue = 5;
-            npAnswers.Value = prefs.GetInt("npAnswers_Value", 3);
+            npOldQuestions = (NumberPicker)FindViewById(Resource.Id.npOldQuestions);
+            npOldQuestions.MinValue = 0;
+            npOldQuestions.MaxValue = 99;
+            npOldQuestions.Value = prefs.GetInt("npOldQuestions_Value", 10);
+            npNewQuestions = (NumberPicker)FindViewById(Resource.Id.npNewQuestions);
+            npNewQuestions.MinValue = 1;
+            npNewQuestions.MaxValue = 99;
+            npNewQuestions.Value = prefs.GetInt("npNewQuestions_Value", 10);
 
             FindViewById<Button>(Resource.Id.btnClose).Click += BtnClose_Click;
             FindViewById<Button>(Resource.Id.btnTest).Click += BtnTest_Click;
@@ -96,7 +97,7 @@ namespace vocab_tester
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MatchParent, LinearLayout.LayoutParams.WrapContent);
             layoutParams.SetMargins(left_margin, 0, 0, 0);
             linearOutside.LayoutParameters = layoutParams;
-            linearOutside.Tag = string.Format("{0}_{1}", id, parent_id);
+            linearOutside.Tag = parent_id;
             linearOutside.SetGravity(GravityFlags.CenterVertical);
 
             ImageButton button = new ImageButton(this);
@@ -104,7 +105,7 @@ namespace vocab_tester
             button.SetImageResource(Resource.Drawable.minus_16);
             button.SetBackgroundColor(Android.Graphics.Color.Transparent);
             button.LayoutParameters = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WrapContent, LinearLayout.LayoutParams.WrapContent);
-            button.Tag = true;
+            button.Tag = true; //expanded
             button.Click += BtnCategory_Click;            
             linearOutside.AddView(button);
 
@@ -131,6 +132,7 @@ namespace vocab_tester
             linearCheckBox.LayoutParameters = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WrapContent, LinearLayout.LayoutParams.MatchParent);
             CheckBox checkBox = new CheckBox(this);
             checkBox.LayoutParameters = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WrapContent, LinearLayout.LayoutParams.WrapContent);
+            checkBox.Click += CheckCategory_Click;
             linearCheckBox.AddView(checkBox);
 
             linearInsideGroup.AddView(linearCheckBox);
@@ -138,7 +140,7 @@ namespace vocab_tester
             linearCategories.AddView(linearOutside);
 
         }
-
+        
         private void HideExpandButton(long category_id)
         {
             LinearLayout linearOutside = linearCategories.FindViewById<LinearLayout>((int)category_id);
@@ -151,17 +153,54 @@ namespace vocab_tester
             if (Convert.ToBoolean(((ImageButton)sender).Tag))
             {
                 ((ImageButton)sender).SetImageResource(Resource.Drawable.minus_16);
+                Category_Expand(((LinearLayout)(((ImageButton)sender).Parent)).Id);
             }
             else
             {
                 ((ImageButton)sender).SetImageResource(Resource.Drawable.plus_16);
+                Category_Collapse(((LinearLayout)(((ImageButton)sender).Parent)).Id);
+            }
+        }
+
+        private void Category_Collapse(long category_id)
+        {
+            List<LinearLayout> children = ActivityHelper.GetLinearChildren(linearCategories, category_id);
+            foreach(LinearLayout child in children)
+            {
+                child.Visibility = ViewStates.Gone;
+                Category_Collapse((long)child.Id);                
+            }
+        }
+
+        private void Category_Expand(long category_id)
+        {
+            List<LinearLayout> children = ActivityHelper.GetLinearChildren(linearCategories, category_id);
+            foreach (LinearLayout child in children)
+            {
+                child.Visibility = ViewStates.Visible;
+                if (Convert.ToBoolean(child.FindViewById<ImageButton>(1).Tag))
+                {
+                    Category_Expand((long)child.Id);
+                }
             }
         }
 
         private void CheckCategory_Click(object sender, EventArgs e)
         {
-            //((CheckBox)sender).Checked = !((CheckBox)sender).Checked;
+            LinearLayout linearOutside = (LinearLayout)((CheckBox)sender).Parent.Parent.Parent;
+            Category_Check(linearOutside.Id, ((CheckBox)sender).Checked);
         }
+
+        private void Category_Check(long parent_id, bool is_checked)
+        {
+            List<LinearLayout> children = ActivityHelper.GetLinearChildren(linearCategories, parent_id);
+            foreach (LinearLayout child in children)
+            {
+                CheckBox checkBox = (CheckBox)((LinearLayout)((LinearLayout)child.GetChildAt(1)).GetChildAt(1)).GetChildAt(0);
+                checkBox.Checked = is_checked;
+                Category_Check((long)child.Id, is_checked);
+            }
+        }     
 
         private void BtnClose_Click(object sender, EventArgs e)
         {
@@ -171,9 +210,16 @@ namespace vocab_tester
         private void BtnTest_Click(object sender, EventArgs e)
         {
             ISharedPreferencesEditor editor = prefs.Edit();
-            editor.PutInt("npQuestions_Value", npQuestions.Value);
-            editor.PutInt("npAnswers_Value", npAnswers.Value);
+            editor.PutInt("npOldQuestions_Value", npOldQuestions.Value);
+            editor.PutInt("npNewQuestions_Value", npNewQuestions.Value);
             editor.Commit();
+
+            var intent = new Intent(this, typeof(TestActivity));
+            Bundle bundle = new Bundle();
+            bundle.PutInt("oldQuestions", npOldQuestions.Value);
+            bundle.PutInt("newQuestions", npNewQuestions.Value);        
+            intent.PutExtra("testParams", bundle);
+            StartActivity(intent);
         }
     }
 }

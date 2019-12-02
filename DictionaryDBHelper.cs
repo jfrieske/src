@@ -48,6 +48,9 @@ namespace vocab_tester
             [MaxLength(20)]
             public string Name { get; set; }
             public long Category_id { get; set; }
+            public long Total_answers { get; set; }
+            public long Wrong_answers { get; set; }
+            public DateTime Last_answered { get; set; }
         }
 
         [Table("Answer")]
@@ -58,6 +61,25 @@ namespace vocab_tester
             [MaxLength(20)]
             public string Value { get; set; }
             public long Question_id { get; set; }
+        }
+
+        [Table("TestHeader")]
+        public class TestHeader
+        {
+            [PrimaryKey, AutoIncrement]
+            public long Id { get; set; }            
+            public DateTime Date { get; set; }
+            public long Duration { get; set; }            
+        }
+
+        [Table("TestQuestion")]
+        public class TestQuestion
+        {
+            [PrimaryKey, AutoIncrement]
+            public long Id { get; set; }
+            public long Test_id { get; set; }
+            public long Question_id { get; set; }
+            public long Wrong_answers { get; set; }            
         }
 
         public DictionaryDBHelper()
@@ -117,6 +139,10 @@ namespace vocab_tester
             cmd.ExecuteNonQuery();
             cmd.CommandText = ("drop table Answer");
             cmd.ExecuteNonQuery();
+            cmd.CommandText = ("drop table TestHeader");
+            cmd.ExecuteNonQuery();
+            cmd.CommandText = ("drop table TestQuestion");
+            cmd.ExecuteNonQuery();
             CreateTables();
         }
 
@@ -126,6 +152,8 @@ namespace vocab_tester
             db.CreateTable<Category>();
             db.CreateTable<Question>();
             db.CreateTable<Answer>();
+            db.CreateTable<TestHeader>();
+            db.CreateTable<TestQuestion>();
         }
 
         #endregion
@@ -161,6 +189,9 @@ namespace vocab_tester
                 var newQuestion = new Question();
                 newQuestion.Name = name;
                 newQuestion.Category_id = category_id;
+                newQuestion.Total_answers = 0;
+                newQuestion.Wrong_answers = 0;
+                newQuestion.Last_answered = DateTime.Now;
                 db.Insert(newQuestion);
                 return GetLastKeyValue();
             }
