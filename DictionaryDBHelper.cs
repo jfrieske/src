@@ -52,8 +52,13 @@ namespace vocab_tester
             public long Category_id { get; set; }
             public long Total_answers { get; set; }
             public long Wrong_answers { get; set; }
-            public DateTime Last_answered { get; set; }
+            public DateTime? Last_answered { get; set; }
             public bool Is_sealed { get; set; }
+        }
+
+        public class QuestionExt1: Question
+        {                        
+            public bool Category_Is_sealed { get; set; }
         }
 
         [Table("Answer")]
@@ -196,7 +201,7 @@ namespace vocab_tester
                 newQuestion.Is_sealed = is_sealed;
                 newQuestion.Total_answers = 0;
                 newQuestion.Wrong_answers = 0;
-                newQuestion.Last_answered = DateTime.Now;
+                newQuestion.Last_answered = null;
                 db.Insert(newQuestion);
                 return GetLastKeyValue();
             }
@@ -241,7 +246,34 @@ namespace vocab_tester
                 }
             }
             return categories;
-        }        
+        }
+
+        public List<QuestionExt1> GetNewQuestions(int count, List<long> categories)
+        {
+            string cmd_str = "select Question.*, Category.Is_sealed Category_Is_sealed from Question " +
+                "inner join Category on Category.Id = Question.Category_id " +
+                "where Total_answers = 0 and " +
+                "Category_id in (" + string.Join(",", categories.ToArray()) + ") " +
+                "limit " + count.ToString();            
+            var cmd = db.CreateCommand(cmd_str);
+            return cmd.ExecuteQuery<QuestionExt1>();            
+        }
+
+        public List<Answer> GetAnswersForQuestion(long questionId)
+        {
+            string cmd_str = "select * from Answer where Question_id=" + questionId.ToString() + " order by Id";
+            var cmd = db.CreateCommand(cmd_str);
+            return cmd.ExecuteQuery<Answer>();
+        }
+
+        public List<Answer> GetAnswersForCategory(long categoryId, long questionId)
+        {
+            string cmd_str = "select Answer.* from Answer" +
+                " inner join Question on Question.Id = Answer.Question_id where Question.Category_id=" + categoryId.ToString() +
+                " and Question.Id <> " + questionId.ToString();
+            var cmd = db.CreateCommand(cmd_str);
+            return cmd.ExecuteQuery<Answer>();
+        }
     }
 }
  

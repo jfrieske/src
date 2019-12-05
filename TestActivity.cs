@@ -53,7 +53,37 @@ namespace vocab_tester
             Bundle bundle = Intent.GetBundleExtra("testParams");
             int oldQuestions = bundle.GetInt("oldQuestions", 0);
             int newQuestions = bundle.GetInt("newQuestions", 0);
+            List<long> categories = bundle.GetLongArray("categories").ToList();
             questions = new List<Question>();
+
+            DictionaryDBHelper db_helper = new DictionaryDBHelper();
+            List<DictionaryDBHelper.QuestionExt1> db_questions = db_helper.GetNewQuestions(newQuestions, categories);
+            foreach (DictionaryDBHelper.QuestionExt1 db_question in db_questions)
+            {
+                Question question = new Question(db_question.Id, db_question.Name);
+                List<DictionaryDBHelper.Answer> answers = db_helper.GetAnswersForQuestion(db_question.Id);
+                for (int i = 0; i < answers.Count - 1; i++)
+                {
+                    question.AddAnswer(answers[i].Value, i == 0);
+                }
+                if (db_question.Is_sealed)
+                {
+                    
+                }
+                else
+                    if (db_question.Category_Is_sealed)
+                {
+                    answers = db_helper.GetAnswersForCategory(db_question.Category_id, db_question.Id));
+                    for (int i = 0; i < answers.Count - 1; i++)
+                    {
+                        question.AddAnswer(answers[i].Value, false);
+                    }
+                }
+                else
+                {
+
+                }
+            }
 
             FindViewById<Button>(Resource.Id.btnClose).Click += BtnClose_Click;
         }

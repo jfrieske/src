@@ -200,7 +200,23 @@ namespace vocab_tester
                 checkBox.Checked = is_checked;
                 Category_Check((long)child.Id, is_checked);
             }
-        }     
+        }
+
+        private List<long> Category_Get_Checked()
+        {
+            List<long> checked_ids = new List<long>();
+            int childCount = linearCategories.ChildCount;
+            for (int i = 0; i < childCount; i++)
+            {
+                LinearLayout child = (LinearLayout)linearCategories.GetChildAt(i);
+                CheckBox checkBox = (CheckBox)((LinearLayout)((LinearLayout)child.GetChildAt(1)).GetChildAt(1)).GetChildAt(0);
+                if (checkBox.Checked)
+                {
+                    checked_ids.Add(child.Id);
+                }
+            }
+            return checked_ids;            
+        }
 
         private void BtnClose_Click(object sender, EventArgs e)
         {
@@ -214,10 +230,13 @@ namespace vocab_tester
             editor.PutInt("npNewQuestions_Value", npNewQuestions.Value);
             editor.Commit();
 
+            List<long> checked_ids = Category_Get_Checked();
+
             var intent = new Intent(this, typeof(TestActivity));
             Bundle bundle = new Bundle();
             bundle.PutInt("oldQuestions", npOldQuestions.Value);
-            bundle.PutInt("newQuestions", npNewQuestions.Value);        
+            bundle.PutInt("newQuestions", npNewQuestions.Value);
+            bundle.PutLongArray("categories", checked_ids.ToArray());
             intent.PutExtra("testParams", bundle);
             StartActivity(intent);
         }
