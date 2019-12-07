@@ -250,27 +250,47 @@ namespace vocab_tester
 
         public List<QuestionExt1> GetNewQuestions(int count, List<long> categories)
         {
-            string cmd_str = "select Question.*, Category.Is_sealed Category_Is_sealed from Question " +
-                "inner join Category on Category.Id = Question.Category_id " +
-                "where Total_answers = 0 and " +
-                "Category_id in (" + string.Join(",", categories.ToArray()) + ") " +
-                "limit " + count.ToString();            
+            string cmd_str = "select Question.*, Category.Is_sealed Category_Is_sealed from Question" +
+                " inner join Category on Category.Id = Question.Category_id" +
+                " where Total_answers = 0 and" +
+                " Category_id in (" + string.Join(",", categories.ToArray()) + ")" +
+                " ORDER BY RANDOM() limit " + count.ToString();            
             var cmd = db.CreateCommand(cmd_str);
             return cmd.ExecuteQuery<QuestionExt1>();            
         }
 
-        public List<Answer> GetAnswersForQuestion(long questionId)
+        public Answer GetAnswerForQuestion(long questionId)
         {
-            string cmd_str = "select * from Answer where Question_id=" + questionId.ToString() + " order by Id";
+            string cmd_str = "select * from Answer where Question_id=" + questionId.ToString() + " order by Id LIMIT 1";
+            var cmd = db.CreateCommand(cmd_str);
+            return cmd.ExecuteQuery<Answer>().FirstOrDefault();
+        }
+
+        public List<Answer> GetAnswersForSealedQuestion(long questionId, long answerToSkip)
+        {
+            string cmd_str = "select * from Answer where Id <> " + answerToSkip + " and Question_id=" + questionId.ToString();
             var cmd = db.CreateCommand(cmd_str);
             return cmd.ExecuteQuery<Answer>();
         }
 
-        public List<Answer> GetAnswersForCategory(long categoryId, long questionId)
+        public List<Answer> GetAnswersForSealedCategory(int count, long categoryId, long answerToSkip)
         {
             string cmd_str = "select Answer.* from Answer" +
                 " inner join Question on Question.Id = Answer.Question_id where Question.Category_id=" + categoryId.ToString() +
-                " and Question.Id <> " + questionId.ToString();
+                " and Answer.Id <> " + answerToSkip.ToString() +
+                " ORDER BY RANDOM() LIMIT " + count.ToString();
+            var cmd = db.CreateCommand(cmd_str);
+            return cmd.ExecuteQuery<Answer>();
+        }
+
+        public List<Answer> GetAnswersForCategories(int count, List<long> categories, long answerToSkip)
+        {
+            string cmd_str = "select Answer.* from Answer" +
+                " inner join Question on Question.Id = Answer.Question_id" +
+                " inner join Category on Category.Id = Question.Category_id" +
+                " where not Question.Is_sealed and not Category.Is_sealed" +
+                " and Answer.Id <> " + answerToSkip.ToString() +
+                " ORDER BY RANDOM() LIMIT " + count.ToString();
             var cmd = db.CreateCommand(cmd_str);
             return cmd.ExecuteQuery<Answer>();
         }
