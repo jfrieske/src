@@ -1,16 +1,8 @@
-﻿using System;
+﻿using SQLite;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using SQLite;
 using Environment = System.Environment;
 
 namespace vocab_tester
@@ -27,9 +19,9 @@ namespace vocab_tester
 
             [MaxLength(40)]
             public string Value { get; set; }
-            
+
         }
-         
+
         [Table("Category")]
         public class Category
         {
@@ -40,6 +32,8 @@ namespace vocab_tester
             public long? Parent_id { get; set; }
 
             public bool Is_sealed { get; set; }
+
+            public bool Is_checked { get; set; }
         }
 
         [Table("Question")]
@@ -50,14 +44,14 @@ namespace vocab_tester
             [MaxLength(20)]
             public string Name { get; set; }
             public long Category_id { get; set; }
-            public long Total_answers { get; set; }
+            public long Total_queries { get; set; }
             public long Wrong_answers { get; set; }
             public DateTime? Last_answered { get; set; }
             public bool Is_sealed { get; set; }
         }
 
-        public class QuestionExt1: Question
-        {                        
+        public class QuestionExt1 : Question
+        {
             public bool Category_Is_sealed { get; set; }
         }
 
@@ -75,9 +69,9 @@ namespace vocab_tester
         public class TestHeader
         {
             [PrimaryKey, AutoIncrement]
-            public long Id { get; set; }            
+            public long Id { get; set; }
             public DateTime Date { get; set; }
-            public long Duration { get; set; }            
+            public long Duration { get; set; }
         }
 
         [Table("TestQuestion")]
@@ -87,7 +81,7 @@ namespace vocab_tester
             public long Id { get; set; }
             public long Test_id { get; set; }
             public long Question_id { get; set; }
-            public long Wrong_answers { get; set; }            
+            public long Wrong_answers { get; set; }
         }
 
         public DictionaryDBHelper()
@@ -119,13 +113,13 @@ namespace vocab_tester
         }
 
         public string GetVersion()
-        {            
+        {
             if (db.Table<Config>().Count() == 0)
             {
                 var newConfig = new Config();
                 newConfig.Name = "Version";
                 newConfig.Value = "";
-                db.Insert(newConfig);               
+                db.Insert(newConfig);
             }
             return GetVersionRow().Value;
         }
@@ -169,9 +163,9 @@ namespace vocab_tester
         #region db_structure
 
         public long AddCategory(long? parent_id, string name, bool is_sealed)
-        {            
+        {
             var db_row = (from s in db.Table<Category>()
-                       where (s.Name.Equals(name)) && (s.Parent_id == parent_id || (parent_id == null && s.Parent_id == null))
+                          where (s.Name.Equals(name)) && (s.Parent_id == parent_id || (parent_id == null && s.Parent_id == null))
                           select s).FirstOrDefault();
             if (db_row == null)
             {
@@ -179,6 +173,7 @@ namespace vocab_tester
                 newCategory.Name = name;
                 newCategory.Parent_id = parent_id;
                 newCategory.Is_sealed = is_sealed;
+                newCategory.Is_checked = false;
                 db.Insert(newCategory);
                 return GetLastKeyValue();
             }
@@ -199,7 +194,7 @@ namespace vocab_tester
                 newQuestion.Name = name;
                 newQuestion.Category_id = category_id;
                 newQuestion.Is_sealed = is_sealed;
-                newQuestion.Total_answers = 0;
+                newQuestion.Total_queries = 0;
                 newQuestion.Wrong_answers = 0;
                 newQuestion.Last_answered = null;
                 db.Insert(newQuestion);
@@ -239,7 +234,7 @@ namespace vocab_tester
                            where (s.Parent_id == parent_id || (parent_id == null && s.Parent_id == null))
                            select s);
             if (db_rows != null)
-            {                
+            {
                 foreach (Category category in db_rows)
                 {
                     categories.Add(category);
@@ -248,15 +243,28 @@ namespace vocab_tester
             return categories;
         }
 
+        public void UncheckCategories()
+        {
+            var cmd = db.CreateCommand("update Category set Is_checked = false");
+            cmd.ExecuteNonQuery();
+        }
+
+        public void CheckCategories(List<long> categories)
+        {
+            var cmd = db.CreateCommand("update Category set Is_checked = true" +
+                " where Id in (" + string.Join(",", categories.ToArray()) + ")");
+            cmd.ExecuteNonQuery();
+        }
+
         public List<QuestionExt1> GetNewQuestions(int count, List<long> categories)
         {
             string cmd_str = "select Question.*, Category.Is_sealed Category_Is_sealed from Question" +
                 " inner join Category on Category.Id = Question.Category_id" +
-                " where Total_answers = 0 and" +
+                " where Total_queries = 0 and" +
                 " Category_id in (" + string.Join(",", categories.ToArray()) + ")" +
-                " ORDER BY RANDOM() limit " + count.ToString();            
+                " ORDER BY RANDOM() limit " + count.ToString();
             var cmd = db.CreateCommand(cmd_str);
-            return cmd.ExecuteQuery<QuestionExt1>();            
+            return cmd.ExecuteQuery<QuestionExt1>();
         }
 
         public Answer GetAnswerForQuestion(long questionId)
@@ -283,7 +291,7 @@ namespace vocab_tester
             return cmd.ExecuteQuery<Answer>();
         }
 
-        public List<Answer> GetAnswersForCategories(int count, List<long> categories, long answerToSkip)
+        public List<Answer> GetAnswersForAllCategories(int count, long answerToSkip)
         {
             string cmd_str = "select Answer.* from Answer" +
                 " inner join Question on Question.Id = Answer.Question_id" +
@@ -293,6 +301,28 @@ namespace vocab_tester
                 " ORDER BY RANDOM() LIMIT " + count.ToString();
             var cmd = db.CreateCommand(cmd_str);
             return cmd.ExecuteQuery<Answer>();
+        }
+
+        public List<Answer> GetAnswersForCategories(int count, List<long> categories, long answerToSkip)
+        {
+            string cmd_str = "select Answer.* from Answer" +
+                " inner join Question on Question.Id = Answer.Question_id" +
+                " inner join Category on Category.Id = Question.Category_id" +
+                " where Category_id in (" + string.Join(",", categories.ToArray()) + ")" +
+                " and Answer.Id <> " + answerToSkip.ToString() +
+                " ORDER BY RANDOM() LIMIT " + count.ToString();
+            var cmd = db.CreateCommand(cmd_str);
+            return cmd.ExecuteQuery<Answer>();
+        }
+
+        public void UpdateQuestionStats(long id, long wrong_answers)
+        {
+            var cmd = db.CreateCommand(String.Format("update Question set " +
+                "Total_queries = Total_queries + 1, " +
+                "Wrong_answers = Wrong_answers + {1}, " +
+                "Last_answered = datetime('now') " +
+                "where Id = {0}", id, wrong_answers));
+            cmd.ExecuteNonQuery();
         }
     }
 }

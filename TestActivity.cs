@@ -9,6 +9,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Newtonsoft.Json;
 using Xamarin.Essentials;
 
 namespace vocab_tester
@@ -16,39 +17,15 @@ namespace vocab_tester
     [Activity(Label = "TestActivity")]
     public class TestActivity : Activity
     {        
-        private class Question
-        {
-            public class Answer
-            {
-                public string value { get; set; }
-                public bool is_correct { get; set; }
-            }
-
-            public long id;
-            public string value;
-            public bool is_answered;
-            public long wrong_answers;
-            public List<Answer> answers;
-            
-            public Question(long id, string name)
-            {
-                this.id = id;
-                this.value = name;
-                wrong_answers = 0;
-                is_answered = false;
-                answers = new List<Answer>();                
-            }
-
-            public void AddAnswer(string name, bool is_correct)
-            {
-                answers.Add(new Answer { value = name, is_correct = is_correct });
-            }
-        }
-        private List<Question> questions;
+        
+        private List<TestHelper.Question> questions;
         private int questionIndex;
         private int questionsAnswered;
         private RadioGroup radioGroupAnswers;
-        private Xamarin.Essentials.Locale locale;
+        private Locale locale;
+        private bool answer_is_checked;
+        private ProgressBar progressAnswered;
+
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -58,13 +35,13 @@ namespace vocab_tester
             int oldQuestionsCount = bundle.GetInt("oldQuestions", 0);
             int newQuestionsCount = bundle.GetInt("newQuestions", 0);
             List<long> categories = bundle.GetLongArray("categories").ToList();
-            questions = new List<Question>();
+            questions = new List<TestHelper.Question>();
 
             DictionaryDBHelper db_helper = new DictionaryDBHelper();
             List<DictionaryDBHelper.QuestionExt1> db_questions = db_helper.GetNewQuestions(newQuestionsCount, categories);
             foreach (DictionaryDBHelper.QuestionExt1 db_question in db_questions)
             {
-                Question question = new Question(db_question.Id, db_question.Name);
+                TestHelper.Question question = new TestHelper.Question(db_question.Id, db_question.Name);
                 DictionaryDBHelper.Answer valid_answer = db_helper.GetAnswerForQuestion(db_question.Id);
                 question.AddAnswer(valid_answer.Value, true);                
                 if (db_question.Is_sealed)
@@ -87,6 +64,7 @@ namespace vocab_tester
                 else
                 {
                     List<DictionaryDBHelper.Answer> answers = db_helper.GetAnswersForCategories(3, categories, valid_answer.Id);
+                    //List<DictionaryDBHelper.Answer> answers = db_helper.GetAnswersForSealedCategory(3, db_question.Category_id, valid_answer.Id);
                     for (int i = 0; i < answers.Count; i++)
                     {
                         question.AddAnswer(answers[i].Value, false);
@@ -95,9 +73,19 @@ namespace vocab_tester
                 questions.Add(question);
             }
 
+            if (questions.Count == 0)
+            {
+                Toast.MakeText(this, "Brak pytań dla wybranych kategorii", ToastLength.Short);
+                Finish();
+                return;
+            }
+
             radioGroupAnswers = FindViewById<RadioGroup>(Resource.Id.rgAnswers);
             questionIndex = 0;
             questionsAnswered = 0;
+            progressAnswered = FindViewById<ProgressBar>(Resource.Id.progressAnswered);
+            progressAnswered.Max = questions.Count();
+
             GenerateQuestion();
 
             var locales = await TextToSpeech.GetLocalesAsync();
@@ -110,7 +98,14 @@ namespace vocab_tester
 
         private void btnVerify_Click(object sender, EventArgs e)
         {
-            VerifyQuestion();
+            if (answer_is_checked)
+            {
+                VerifyQuestion();
+            }
+            else
+            {
+                Toast.MakeText(this, "Musisz zaznaczyć odpowiedź.", ToastLength.Short).Show();
+            }            
         }
 
         private void btnNext_Click(object sender, EventArgs e)
@@ -133,13 +128,7 @@ namespace vocab_tester
             }
             else
             {
-                var intent = new Intent(this, typeof(TestSummaryActivity));
-                /*Bundle bundle = new Bundle();
-                bundle.PutInt("oldQuestions", npOldQuestions.Value);
-                bundle.PutInt("newQuestions", npNewQuestions.Value);
-                bundle.PutLongArray("categories", checked_ids.ToArray());
-                intent.PutExtra("testParams", bundle);*/
-                StartActivity(intent);
+                ShowSummary();
             }
         }
 
@@ -150,9 +139,10 @@ namespace vocab_tester
 
         private void GenerateQuestion()
         {
+            answer_is_checked = false;
             FindViewById<TextView>(Resource.Id.textQuestion).Text = questions[questionIndex].value;
             radioGroupAnswers.RemoveAllViews();
-            List<Question.Answer> answers = new List<Question.Answer>();
+            List<TestHelper.Question.Answer> answers = new List<TestHelper.Question.Answer>();
             answers.AddRange(questions[questionIndex].answers);
             while (answers.Count > 1)
             {
@@ -176,7 +166,8 @@ namespace vocab_tester
         }
 
         private async void Radio_Click(object sender, EventArgs e)
-        {            
+        {
+            answer_is_checked = true;
             var settings = new SpeechOptions()
             {
                 Locale = locale
@@ -202,16 +193,36 @@ namespace vocab_tester
                     {
                         ++questionsAnswered;
                         questions[questionIndex].is_answered = true;
+                        progressAnswered.Progress = questionsAnswered;
                     }
                     else
                     {
+                        ++questions[questionIndex].wrong_answers;
                         child.SetTextColor(Android.Graphics.Color.Red);
                     }
                 }
                 
             }
             FindViewById<Button>(Resource.Id.btnVerify).Visibility = ViewStates.Gone;
-            FindViewById<Button>(Resource.Id.btnNext).Visibility = ViewStates.Visible;
+            FindViewById<Button>(Resource.Id.btnNext).Visibility = ViewStates.Visible;            
+        }
+
+        private void ShowSummary()
+        {
+            DictionaryDBHelper db_helper = new DictionaryDBHelper();
+            foreach (TestHelper.Question question in questions)
+            {
+                db_helper.UpdateQuestionStats(question.id, question.wrong_answers);
+            }
+
+            var intent = new Intent(this, typeof(TestSummaryActivity));
+            
+            //Bundle bundle = new Bundle();
+            //bundle.PutInt("oldQuestions", npOldQuestions.Value);
+            //bundle.PutInt("newQuestions", npNewQuestions.Value);
+            //bundle.put .PutLongArray("categories", checked_ids.ToArray());
+            intent.PutExtra("questions", JsonConvert.SerializeObject(questions));
+            StartActivity(intent);
         }
     }
 }

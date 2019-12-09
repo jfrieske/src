@@ -53,7 +53,7 @@ namespace vocab_tester
             DictionaryDBHelper dbHelper = new DictionaryDBHelper();
             foreach (DictionaryDBHelper.Category category in dbHelper.GetCategories(null))
             {
-                BuildCategoryRow(category.Id, null, category.Name, 0, false);
+                BuildCategoryRow(category.Id, null, category.Name, 0, category.Is_checked);
                 if (!GenerateSubcategories(dbHelper, category.Id, 0))
                 {
                     HideExpandButton(category.Id);
@@ -73,7 +73,7 @@ namespace vocab_tester
             bool hasChildren = false;
             foreach (DictionaryDBHelper.Category category in dbHelper.GetCategories(parent_id))
             {
-                BuildCategoryRow(category.Id, category.Parent_id, category.Name, parents_count, false);
+                BuildCategoryRow(category.Id, category.Parent_id, category.Name, parents_count, category.Is_checked);
                 if (!GenerateSubcategories(dbHelper, category.Id, parents_count))
                 {
                     HideExpandButton(category.Id);
@@ -132,6 +132,7 @@ namespace vocab_tester
             linearCheckBox.LayoutParameters = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WrapContent, LinearLayout.LayoutParams.MatchParent);
             CheckBox checkBox = new CheckBox(this);
             checkBox.LayoutParameters = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WrapContent, LinearLayout.LayoutParams.WrapContent);
+            checkBox.Checked = is_checked;
             checkBox.Click += CheckCategory_Click;
             linearCheckBox.AddView(checkBox);
 
@@ -231,6 +232,10 @@ namespace vocab_tester
             editor.Commit();
 
             List<long> checked_ids = Category_Get_Checked();
+
+            DictionaryDBHelper dbHelper = new DictionaryDBHelper();
+            dbHelper.UncheckCategories();
+            dbHelper.CheckCategories(checked_ids);
 
             var intent = new Intent(this, typeof(TestActivity));
             Bundle bundle = new Bundle();
