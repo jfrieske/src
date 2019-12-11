@@ -1,16 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:p4="http://xamarin.com/mono/android/designer"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical|center_horizontal"
     android:minWidth="25px"
     android:minHeight="25px">
-    <Button
-        android:text="KONIEC"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnClose"
-        android:layout_marginTop="25.5dp" />
+    
+    <ScrollView
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/scrollView1"
+        android:layout_marginLeft="25.0dp"
+        android:layout_marginRight="25.0dp"
+        android:layout_marginTop="23.0dp">
+        <LinearLayout
+            android:orientation="vertical"
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout2"
+            android:gravity="center_vertical|center_horizontal">
+            <TableLayout
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tableAnswers">
+                <TableRow
+                    android:id="@+id/tableRow1">
+                    <TextView
+                        p4:placeholder="true"
+                        android:minWidth="30px"
+                        android:minHeight="30px"
+                        android:id="@+id/textView1"
+                        android:text="Pytanie"
+                        android:layout_marginRight="12.5dp"
+                        android:layout_width="152.5dp" />
+                    <TextView
+                        p4:placeholder="true"
+                        android:minWidth="30px"
+                        android:minHeight="30px"
+                        android:id="@+id/textView2"
+                        android:text="Ilość błędów" />                    
+                </TableRow>               
+            </TableLayout>
+        </LinearLayout>
+        
+    </ScrollView>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="104.0dp"
+        android:id="@+id/linearLayout1"
+        android:gravity="center">
+        <Button
+            android:text="KONIEC"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnClose"/>
+    </LinearLayout>
+
 
 </LinearLayout>

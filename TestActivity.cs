@@ -25,6 +25,7 @@ namespace vocab_tester
         private Locale locale;
         private bool answer_is_checked;
         private ProgressBar progressAnswered;
+        private int ACTIVITY_SUMMARY = 300;
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {
@@ -39,11 +40,12 @@ namespace vocab_tester
 
             DictionaryDBHelper db_helper = new DictionaryDBHelper();
             List<DictionaryDBHelper.QuestionExt1> db_questions = db_helper.GetNewQuestions(newQuestionsCount, categories);
+            db_questions.AddRange(db_helper.GetOldQuestions(oldQuestionsCount, categories));
             foreach (DictionaryDBHelper.QuestionExt1 db_question in db_questions)
             {
                 TestHelper.Question question = new TestHelper.Question(db_question.Id, db_question.Name);
                 DictionaryDBHelper.Answer valid_answer = db_helper.GetAnswerForQuestion(db_question.Id);
-                question.AddAnswer(valid_answer.Value, true);                
+                question.AddAnswer(valid_answer.Value, true);
                 if (db_question.Is_sealed)
                 {
                     List<DictionaryDBHelper.Answer> answers = db_helper.GetAnswersForSealedQuestion(db_question.Id, valid_answer.Id);
@@ -75,7 +77,8 @@ namespace vocab_tester
 
             if (questions.Count == 0)
             {
-                Toast.MakeText(this, "Brak pytań dla wybranych kategorii", ToastLength.Short);
+                Toast.MakeText(this, "Brak pytań dla wybranych kategorii", ToastLength.Short).Show();
+                SetResult(Result.FirstUser);
                 Finish();
                 return;
             }
@@ -132,8 +135,18 @@ namespace vocab_tester
             }
         }
 
-        private void BtnClose_Click(object sender, EventArgs e)
+        private async void BtnClose_Click(object sender, EventArgs e)
         {
+            var answer = await MessageHelper.MessageBoxQuestion.Show(this, "Potwierdź", "Czy chcesz zakończyć test ?", "", "");
+            if (answer == MessageHelper.MessageBoxQuestion.MessageBoxResult.Positive)
+            {
+                Close_Ok();
+            }
+        }
+
+        private void Close_Ok()
+        {
+            SetResult(Result.Ok);
             Finish();
         }
 
@@ -222,7 +235,20 @@ namespace vocab_tester
             //bundle.PutInt("newQuestions", npNewQuestions.Value);
             //bundle.put .PutLongArray("categories", checked_ids.ToArray());
             intent.PutExtra("questions", JsonConvert.SerializeObject(questions));
-            StartActivity(intent);
+            StartActivityForResult(intent, ACTIVITY_SUMMARY);
+        }
+
+        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
+        {
+            base.OnActivityResult(requestCode, resultCode, data);
+            if (requestCode == ACTIVITY_SUMMARY)
+            {
+                if (resultCode == Result.Ok)
+                {
+                    Close_Ok();
+                }                
+            }
+
         }
     }
 }

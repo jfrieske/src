@@ -24,6 +24,7 @@ namespace vocab_tester
             SetSupportActionBar(toolbar);
 
             FindViewById<Button>(Resource.Id.btnClose).Click += BtnClose_Click;
+            FindViewById<Button>(Resource.Id.btnDictionary).Visibility = ViewStates.Gone;
             FindViewById<Button>(Resource.Id.btnDictionary).Click += BtnDictionary_Click;
             FindViewById<Button>(Resource.Id.btnTest).Click += BtnTest_Click;
 

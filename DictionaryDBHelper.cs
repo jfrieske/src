@@ -267,6 +267,17 @@ namespace vocab_tester
             return cmd.ExecuteQuery<QuestionExt1>();
         }
 
+        public List<QuestionExt1> GetOldQuestions(int count, List<long> categories)
+        {
+            string cmd_str = "select Question.*, Category.Is_sealed Category_Is_sealed from Question" +
+                " inner join Category on Category.Id = Question.Category_id" +
+                " where Total_queries > 0 and" +
+                " Category_id in (" + string.Join(",", categories.ToArray()) + ")" +
+                " ORDER BY Last_answered desc limit " + count.ToString();
+            var cmd = db.CreateCommand(cmd_str);
+            return cmd.ExecuteQuery<QuestionExt1>();
+        }
+
         public Answer GetAnswerForQuestion(long questionId)
         {
             string cmd_str = "select * from Answer where Question_id=" + questionId.ToString() + " order by Id LIMIT 1";

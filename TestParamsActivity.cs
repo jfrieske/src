@@ -21,6 +21,8 @@ namespace vocab_tester
         private NumberPicker npNewQuestions;
         private ISharedPreferences prefs;
         private LinearLayout linearCategories;
+        private int ACTIVITY_TEST = 300;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -32,7 +34,7 @@ namespace vocab_tester
             npOldQuestions.MaxValue = 99;
             npOldQuestions.Value = prefs.GetInt("npOldQuestions_Value", 10);
             npNewQuestions = (NumberPicker)FindViewById(Resource.Id.npNewQuestions);
-            npNewQuestions.MinValue = 1;
+            npNewQuestions.MinValue = 0;
             npNewQuestions.MaxValue = 99;
             npNewQuestions.Value = prefs.GetInt("npNewQuestions_Value", 10);
 
@@ -243,7 +245,24 @@ namespace vocab_tester
             bundle.PutInt("newQuestions", npNewQuestions.Value);
             bundle.PutLongArray("categories", checked_ids.ToArray());
             intent.PutExtra("testParams", bundle);
-            StartActivity(intent);
+            StartActivityForResult(intent, ACTIVITY_TEST);
+        }
+
+        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
+        {
+            base.OnActivityResult(requestCode, resultCode, data);
+            if (requestCode == ACTIVITY_TEST)
+            {
+                if (resultCode == Result.Ok)
+                {
+
+                }
+                if (resultCode == Result.FirstUser)
+                {
+                    
+                }
+            }
+            
         }
     }
 }
