@@ -119,6 +119,7 @@ namespace vocab_tester
 
         private void BtnClose_Click(object sender, EventArgs e)
         {
+            SetResult(Result.Ok);
             Finish();
         }
 

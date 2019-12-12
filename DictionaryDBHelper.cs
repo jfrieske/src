@@ -116,9 +116,11 @@ namespace vocab_tester
         {
             if (db.Table<Config>().Count() == 0)
             {
-                var newConfig = new Config();
-                newConfig.Name = "Version";
-                newConfig.Value = "";
+                var newConfig = new Config
+                {
+                    Name = "Version",
+                    Value = ""
+                };
                 db.Insert(newConfig);
             }
             return GetVersionRow().Value;
@@ -169,11 +171,13 @@ namespace vocab_tester
                           select s).FirstOrDefault();
             if (db_row == null)
             {
-                var newCategory = new Category();
-                newCategory.Name = name;
-                newCategory.Parent_id = parent_id;
-                newCategory.Is_sealed = is_sealed;
-                newCategory.Is_checked = false;
+                var newCategory = new Category
+                {
+                    Name = name,
+                    Parent_id = parent_id,
+                    Is_sealed = is_sealed,
+                    Is_checked = false
+                };
                 db.Insert(newCategory);
                 return GetLastKeyValue();
             }
@@ -190,13 +194,15 @@ namespace vocab_tester
                           select s).FirstOrDefault();
             if (db_row == null)
             {
-                var newQuestion = new Question();
-                newQuestion.Name = name;
-                newQuestion.Category_id = category_id;
-                newQuestion.Is_sealed = is_sealed;
-                newQuestion.Total_queries = 0;
-                newQuestion.Wrong_answers = 0;
-                newQuestion.Last_answered = null;
+                var newQuestion = new Question
+                {
+                    Name = name,
+                    Category_id = category_id,
+                    Is_sealed = is_sealed,
+                    Total_queries = 0,
+                    Wrong_answers = 0,
+                    Last_answered = null
+                };
                 db.Insert(newQuestion);
                 return GetLastKeyValue();
             }
@@ -213,9 +219,11 @@ namespace vocab_tester
                           select s).FirstOrDefault();
             if (db_row == null)
             {
-                var newAnswer = new Answer();
-                newAnswer.Value = value;
-                newAnswer.Question_id = question_id;
+                var newAnswer = new Answer
+                {
+                    Value = value,
+                    Question_id = question_id
+                };
                 db.Insert(newAnswer);
                 return GetLastKeyValue();
             }

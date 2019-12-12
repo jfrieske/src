@@ -22,6 +22,7 @@ namespace vocab_tester
         private ISharedPreferences prefs;
         private LinearLayout linearCategories;
         private int ACTIVITY_TEST = 300;
+        private int ACTIVITY_SYNCHRO = 400;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -48,10 +49,25 @@ namespace vocab_tester
             FindViewById<ImageButton>(Resource.Id.btnCategory_2).Tag = false;
             linearCategories = FindViewById<LinearLayout>(Resource.Id.linearCategories);
             GenerateCategoryTree();
+            CategoryTreeIsEmpty();
+        }
+
+        private async void CategoryTreeIsEmpty()
+        {
+            if (linearCategories.ChildCount == 0)
+            {
+                var answer = await MessageHelper.MessageBoxQuestion.Show(this, "Pytanie", "Lista pytań jest pusta. Chcesz ją pobrać z serwera ?", "", "");
+                if (answer == MessageHelper.MessageBoxQuestion.MessageBoxResult.Positive)
+                {
+                    var intent = new Intent(this, typeof(DictionarySynchroActivity));
+                    StartActivityForResult(intent, ACTIVITY_SYNCHRO);
+                }
+            }
         }
 
         private void GenerateCategoryTree()
         {
+            linearCategories.RemoveAllViews();
             DictionaryDBHelper dbHelper = new DictionaryDBHelper();
             foreach (DictionaryDBHelper.Category category in dbHelper.GetCategories(null))
             {
@@ -89,9 +105,11 @@ namespace vocab_tester
         {
             float d = Resources.DisplayMetrics.Density;
 
-            LinearLayout linearOutside = new LinearLayout(this); //linearCategory_1
-            linearOutside.Id = (int)id;
-            linearOutside.Orientation = Orientation.Horizontal;
+            LinearLayout linearOutside = new LinearLayout(this)
+            {
+                Id = (int)id,
+                Orientation = Orientation.Horizontal
+            }; //linearCategory_1
             linearOutside.SetMinimumWidth(25);
             linearOutside.SetMinimumHeight(20);
             int dpValue = parents_count * 9; // margin in dips            
@@ -102,8 +120,10 @@ namespace vocab_tester
             linearOutside.Tag = parent_id;
             linearOutside.SetGravity(GravityFlags.CenterVertical);
 
-            ImageButton button = new ImageButton(this);
-            button.Id = 1;
+            ImageButton button = new ImageButton(this)
+            {
+                Id = 1
+            };
             button.SetImageResource(Resource.Drawable.minus_16);
             button.SetBackgroundColor(Android.Graphics.Color.Transparent);
             button.LayoutParameters = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WrapContent, LinearLayout.LayoutParams.WrapContent);
@@ -111,8 +131,10 @@ namespace vocab_tester
             button.Click += BtnCategory_Click;            
             linearOutside.AddView(button);
 
-            LinearLayout linearInsideGroup = new LinearLayout(this);
-            linearInsideGroup.Orientation = Orientation.Horizontal;
+            LinearLayout linearInsideGroup = new LinearLayout(this)
+            {
+                Orientation = Orientation.Horizontal
+            };
             LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MatchParent, LinearLayout.LayoutParams.WrapContent);
             layoutParams2.SetMargins((int)(5 * Resources.DisplayMetrics.Density), 0, 0, 0);
             linearInsideGroup.LayoutParameters = layoutParams2;
@@ -262,7 +284,13 @@ namespace vocab_tester
                     
                 }
             }
-            
+            if (requestCode == ACTIVITY_SYNCHRO)
+            {
+                if (resultCode == Result.Ok)
+                {
+                    GenerateCategoryTree();
+                }                
+            }
         }
     }
 }

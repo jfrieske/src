@@ -171,9 +171,11 @@ namespace vocab_tester
 
         private void AddAnswer(string value, bool is_correct)
         {
-            RadioButton radio = new RadioButton(this);
-            radio.Text = value;
-            radio.Tag = is_correct;
+            RadioButton radio = new RadioButton(this)
+            {
+                Text = value,
+                Tag = is_correct
+            };
             radio.Click += Radio_Click;
             radioGroupAnswers.AddView(radio);
         }

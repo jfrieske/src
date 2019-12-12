@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:p4="http://xamarin.com/mono/android/designer"
@@ -42,13 +42,15 @@
                         android:id="@+id/textView1"
                         android:text="Pytanie"
                         android:layout_marginRight="12.5dp"
-                        android:layout_width="152.5dp" />
+                        android:layout_width="152.5dp"
+                        android:gravity="center_horizontal" />
                     <TextView
                         p4:placeholder="true"
                         android:minWidth="30px"
                         android:minHeight="30px"
                         android:id="@+id/textView2"
-                        android:text="Ilość błędów" />                    
+                        android:text="Ilość błędów"
+                        android:gravity="center_horizontal" />                    
                 </TableRow>               
             </TableLayout>
         </LinearLayout>

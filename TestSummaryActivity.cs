@@ -41,6 +41,7 @@ namespace vocab_tester
                 text_value.Text = question.value;
                 TextView text_wrong_answers = new TextView(this);
                 text_wrong_answers.Text = question.wrong_answers.ToString();
+                text_wrong_answers.Gravity=GravityFlags.CenterHorizontal;
                 if (question.wrong_answers > 0)
                 {
                     text_value.SetTextColor(Android.Graphics.Color.Red);
