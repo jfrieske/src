@@ -10,13 +10,14 @@ using Android.Widget;
 
 namespace vocab_tester
 {
-    [Activity(Label = "vocabulary tester", Theme = "@style/AppTheme.NoActionBar", MainLauncher = true)]
+    [Activity(Label = "Tester słownictwa", Theme = "@style/AppTheme.NoActionBar", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            Android.Gms.Ads.MobileAds.Initialize(this, "ca-app-pub-8543764921210754~7415467115");
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
 

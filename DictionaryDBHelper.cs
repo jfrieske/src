@@ -53,6 +53,7 @@ namespace vocab_tester
         public class QuestionExt1 : Question
         {
             public bool Category_Is_sealed { get; set; }
+            public bool Is_old { get; set; }
         }
 
         [Table("Answer")]
@@ -82,6 +83,30 @@ namespace vocab_tester
             public long Test_id { get; set; }
             public long Question_id { get; set; }
             public long Wrong_answers { get; set; }
+        }
+
+        [Table("Stats")]
+        public class Stats
+        {
+            [PrimaryKey, AutoIncrement]
+            public long Id { get; set; }
+            public long Old_questions_total { get; set; }
+            public long Old_questions_answer_ratio { get; set; }
+            public long New_questions_total { get; set; }
+            public long New_questions_answer_ratio { get; set; }
+            public DateTime Date { get; set; }
+            public long Duration { get; set; }
+        }
+
+        [Table("Stats_question")]
+        public class Stats_question
+        {
+            [PrimaryKey, AutoIncrement]
+            public long Id { get; set; }            
+            public long Stats_id { get; set; }
+            public long Question_id { get; set; }
+            public long Wrong_answers { get; set; }
+            public bool Is_old_question { get; set; }
         }
 
         public DictionaryDBHelper()
@@ -147,6 +172,10 @@ namespace vocab_tester
             cmd.ExecuteNonQuery();
             cmd.CommandText = ("drop table TestQuestion");
             cmd.ExecuteNonQuery();
+            cmd.CommandText = ("drop table Stats");
+            cmd.ExecuteNonQuery();
+            cmd.CommandText = ("drop table Stats_question");
+            cmd.ExecuteNonQuery();
             CreateTables();
         }
 
@@ -158,6 +187,8 @@ namespace vocab_tester
             db.CreateTable<Answer>();
             db.CreateTable<TestHeader>();
             db.CreateTable<TestQuestion>();
+            db.CreateTable<Stats>();
+            db.CreateTable<Stats_question>();
         }
 
         #endregion
@@ -266,7 +297,7 @@ namespace vocab_tester
 
         public List<QuestionExt1> GetNewQuestions(int count, List<long> categories)
         {
-            string cmd_str = "select Question.*, Category.Is_sealed Category_Is_sealed from Question" +
+            string cmd_str = "select Question.*, Category.Is_sealed Category_Is_sealed, 0 Is_old from Question" +
                 " inner join Category on Category.Id = Question.Category_id" +
                 " where Total_queries = 0 and" +
                 " Category_id in (" + string.Join(",", categories.ToArray()) + ")" +
@@ -277,7 +308,7 @@ namespace vocab_tester
 
         public List<QuestionExt1> GetOldQuestions(int count, List<long> categories)
         {
-            string cmd_str = "select Question.*, Category.Is_sealed Category_Is_sealed from Question" +
+            string cmd_str = "select Question.*, Category.Is_sealed Category_Is_sealed, 1 Is_old from Question" +
                 " inner join Category on Category.Id = Question.Category_id" +
                 " where Total_queries > 0 and" +
                 " Category_id in (" + string.Join(",", categories.ToArray()) + ")" +
@@ -343,6 +374,39 @@ namespace vocab_tester
                 "where Id = {0}", id, wrong_answers));
             cmd.ExecuteNonQuery();
         }
+
+        #region Stats
+
+        public long AddStats(long old_questions_total, long old_questions_answer_ratio, long new_questions_total,
+                             long new_questions_answer_ratio, long duration)
+        {
+            var newStats = new Stats
+            {
+                Old_questions_total = old_questions_total,
+                Old_questions_answer_ratio = old_questions_answer_ratio,
+                New_questions_total = new_questions_total,
+                New_questions_answer_ratio = new_questions_answer_ratio,
+                Date = DateTime.Now,
+                Duration = duration
+            };
+
+            db.Insert(newStats);
+            return GetLastKeyValue();
+        }
+
+        public void AddStatsQuestion(long stats_id, long question_id, long wrong_answers, bool is_old_question)
+        {
+            var newStatsQuestion = new Stats_question
+            {
+                Stats_id = stats_id,
+                Question_id = question_id,
+                Wrong_answers = wrong_answers,
+                Is_old_question = is_old_question
+            };
+            db.Insert(newStatsQuestion);
+        }
+
+        #endregion
     }
 }
  

@@ -11,6 +11,7 @@ using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
 using Xamarin.Essentials;
+using Android.Gms.Ads;
 
 namespace vocab_tester
 {
@@ -26,11 +27,17 @@ namespace vocab_tester
         private bool answer_is_checked;
         private ProgressBar progressAnswered;
         private int ACTIVITY_SUMMARY = 300;
+        protected AdView mAdView;
+        private DateTime duration_start;
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_test);
+
+            mAdView = FindViewById<AdView>(Resource.Id.adView1);
+            var adRequest = new AdRequest.Builder().Build();
+            mAdView.LoadAd(adRequest);
 
             Bundle bundle = Intent.GetBundleExtra("testParams");
             int oldQuestionsCount = bundle.GetInt("oldQuestions", 0);
@@ -43,7 +50,7 @@ namespace vocab_tester
             db_questions.AddRange(db_helper.GetOldQuestions(oldQuestionsCount, categories));
             foreach (DictionaryDBHelper.QuestionExt1 db_question in db_questions)
             {
-                TestHelper.Question question = new TestHelper.Question(db_question.Id, db_question.Name);
+                TestHelper.Question question = new TestHelper.Question(db_question.Id, db_question.Name, db_question.Is_old);
                 DictionaryDBHelper.Answer valid_answer = db_helper.GetAnswerForQuestion(db_question.Id);
                 question.AddAnswer(valid_answer.Value, true);
                 if (db_question.Is_sealed)
@@ -97,6 +104,8 @@ namespace vocab_tester
             FindViewById<Button>(Resource.Id.btnVerify).Click += btnVerify_Click;
             FindViewById<Button>(Resource.Id.btnNext).Click += btnNext_Click;
             FindViewById<Button>(Resource.Id.btnClose).Click += BtnClose_Click;
+
+            duration_start = DateTime.Now;
         }
 
         private void btnVerify_Click(object sender, EventArgs e)
@@ -224,10 +233,45 @@ namespace vocab_tester
 
         private void ShowSummary()
         {
+            long duration = (long)Math.Truncate((DateTime.Now - duration_start).TotalSeconds);
+            long old_questions = 0;
+            long old_questions_answers = 0;
+            long old_questions_answer_ratio = 0;
+            long new_questions = 0;
+            long new_questions_answers = 0;            
+            long new_questions_answer_ratio = 0;
+
+
             DictionaryDBHelper db_helper = new DictionaryDBHelper();
             foreach (TestHelper.Question question in questions)
             {
                 db_helper.UpdateQuestionStats(question.id, question.wrong_answers);
+                if (question.is_old)
+                {
+                    ++old_questions;
+                    old_questions_answers = old_questions_answers + question.wrong_answers + 1;
+                }
+                else
+                {
+                    ++new_questions;
+                    new_questions_answers = new_questions_answers + question.wrong_answers + 1;
+                }
+            }
+
+            if (old_questions > 0)
+            {
+                old_questions_answer_ratio = (long)Math.Truncate(((double)old_questions / (double)old_questions_answers) * 100.0);
+            }
+
+            if (new_questions > 0)
+            {
+                new_questions_answer_ratio = (long)Math.Truncate(((double)new_questions / (double)new_questions_answers) * 100.0);
+            }
+
+            long stats_id = db_helper.AddStats(old_questions, old_questions_answer_ratio, new_questions, new_questions_answer_ratio, duration);
+            foreach (TestHelper.Question question in questions)
+            {
+                db_helper.AddStatsQuestion(stats_id, question.id, question.wrong_answers, question.is_old);
             }
 
             var intent = new Intent(this, typeof(TestSummaryActivity));

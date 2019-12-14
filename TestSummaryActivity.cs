@@ -48,6 +48,10 @@ namespace vocab_tester
                     text_wrong_answers.SetTextColor(Android.Graphics.Color.Red);
                 }
                 TableRow row = new TableRow(this);
+                if (question.is_old)
+                {
+                    row.SetBackgroundColor(Android.Graphics.Color.LightGray);
+                }
                 row.AddView(text_value);
                 row.AddView(text_wrong_answers);
                 table.AddView(row);

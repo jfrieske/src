@@ -26,12 +26,14 @@ namespace vocab_tester
             public string value;
             public bool is_answered;
             public long wrong_answers;
+            public bool is_old;
             public List<Answer> answers;
 
-            public Question(long id, string name)
+            public Question(long id, string name, bool is_old)
             {
                 this.id = id;
-                this.value = name;
+                value = name;
+                this.is_old = is_old;
                 wrong_answers = 0;
                 is_answered = false;
                 answers = new List<Answer>();
