@@ -6,4 +6,9 @@
         android:orderInCategory="100"
         android:title="Synchronizuj bazę"
         app:showAsAction="never" />
+  <item
+        android:id="@+id/action_params"
+        android:orderInCategory="200"
+        android:title="Opcje"
+        app:showAsAction="never" />
 </menu>

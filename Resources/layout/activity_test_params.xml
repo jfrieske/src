@@ -137,7 +137,6 @@
             android:gravity="center_vertical|center_horizontal"
             android:layout_marginBottom="10dp">
             <TableRow
-                android:id="@+id/tableRow1"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:gravity="center_vertical">
@@ -169,7 +168,6 @@
                     android:id="@+id/textView3" />
             </TableRow>
             <TableRow
-                android:id="@+id/tableRow1"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:gravity="center_vertical">

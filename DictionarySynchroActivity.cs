@@ -99,11 +99,13 @@ namespace vocab_tester
                 ShowMessageAndStart("Synchronizuję bazę danych");
                 FindViewById<Button>(Resource.Id.btnDeleteTables).Visibility = ViewStates.Gone;
                 dictionaryDBHelper_import = new DictionaryDBHelper();
+                dictionaryDBHelper_import.BeforeSynchro();
                 foreach (XmlNode xml_category in xml_doc.SelectSingleNode("dictionary").SelectNodes("category"))
                 {
                     AddCategory(null, (XmlElement)xml_category);
                 }
                 dictionaryDBHelper_import.SetVersion(db_remote_info.version);
+                dictionaryDBHelper_import.AfterSynchro();
                 ShowMessageAndStop(string.Format("Baza została zsynchronizowana"));
                 FindViewById<Button>(Resource.Id.btnCheckVersion).Visibility = ViewStates.Gone;
                 FindViewById<Button>(Resource.Id.btnDownload).Visibility = ViewStates.Gone;

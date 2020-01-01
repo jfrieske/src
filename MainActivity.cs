@@ -63,6 +63,13 @@ namespace vocab_tester
                 StartActivity(intent);
                 return true;
             }
+            else
+                if (id == Resource.Id.action_params)
+            {
+                var intent = new Intent(this, typeof(ParamsActivity));
+                StartActivity(intent);
+                return true;
+            }
 
             return base.OnOptionsItemSelected(item);
         }

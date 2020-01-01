@@ -72,8 +72,8 @@ namespace vocab_tester
                 }
                 else
                 {
-                    List<DictionaryDBHelper.Answer> answers = db_helper.GetAnswersForCategories(3, categories, valid_answer.Id);
-                    //List<DictionaryDBHelper.Answer> answers = db_helper.GetAnswersForSealedCategory(3, db_question.Category_id, valid_answer.Id);
+                    //List<DictionaryDBHelper.Answer> answers = db_helper.GetAnswersForCategories(3, categories, valid_answer.Id);
+                    List<DictionaryDBHelper.Answer> answers = db_helper.GetAnswersForSealedCategory(3, db_question.Category_id, valid_answer.Id);
                     for (int i = 0; i < answers.Count; i++)
                     {
                         question.AddAnswer(answers[i].Value, false);

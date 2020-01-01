@@ -34,6 +34,14 @@ namespace vocab_tester
             public bool Is_sealed { get; set; }
 
             public bool Is_checked { get; set; }
+            /// <summary>
+            /// true jeśli kategoria została zaczytana podczas aktualnej synchronizacji bazy
+            /// </summary>
+            public bool Is_updated { get; set; }
+            /// <summary>
+            /// true jeśli kategoria została dodana przez użytkownika
+            /// </summary>
+            public bool Is_private { get; set; }
         }
 
         [Table("Question")]
@@ -48,6 +56,14 @@ namespace vocab_tester
             public long Wrong_answers { get; set; }
             public DateTime? Last_answered { get; set; }
             public bool Is_sealed { get; set; }
+            /// <summary>
+            /// true jeśli pytanie zostało zaczytane podczas aktualnej synchronizacji bazy
+            /// </summary>
+            public bool Is_updated { get; set; }           
+            /// <summary>
+            /// true jeśli pytanie zostało dodane przez użytkownika
+            /// </summary>
+            public bool Is_private { get; set; }
         }
 
         public class QuestionExt1 : Question
@@ -195,6 +211,14 @@ namespace vocab_tester
 
         #region db_structure
 
+        public void BeforeSynchro()
+        {
+            var cmd = db.CreateCommand("update Question set Is_updated = false");
+            cmd.ExecuteNonQuery();
+            cmd.CommandText = ("update Category set Is_updated = false");
+            cmd.ExecuteNonQuery();
+        }
+
         public long AddCategory(long? parent_id, string name, bool is_sealed)
         {
             var db_row = (from s in db.Table<Category>()
@@ -207,13 +231,17 @@ namespace vocab_tester
                     Name = name,
                     Parent_id = parent_id,
                     Is_sealed = is_sealed,
-                    Is_checked = false
+                    Is_checked = false,
+                    Is_updated = true,
+                    Is_private = false
                 };
                 db.Insert(newCategory);
                 return GetLastKeyValue();
             }
             else
             {
+                db_row.Is_updated = true;
+                db.Update(db_row);
                 return db_row.Id;
             }
         }
@@ -232,13 +260,17 @@ namespace vocab_tester
                     Is_sealed = is_sealed,
                     Total_queries = 0,
                     Wrong_answers = 0,
-                    Last_answered = null
+                    Last_answered = null,
+                    Is_updated = true,
+                    Is_private = false
                 };
                 db.Insert(newQuestion);
                 return GetLastKeyValue();
             }
             else
             {
+                db_row.Is_updated = true;
+                db.Update(db_row);
                 return db_row.Id;
             }
         }
@@ -262,6 +294,14 @@ namespace vocab_tester
             {
                 return db_row.Id;
             }
+        }
+
+        public void AfterSynchro()
+        {
+            var cmd = db.CreateCommand("delete from Question where Is_updated = false and Is_private = false");
+            cmd.ExecuteNonQuery();
+            cmd.CommandText = ("delete from Category where Is_updated = false and Is_private = false");
+            cmd.ExecuteNonQuery();
         }
 
         #endregion
