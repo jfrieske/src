@@ -12,6 +12,7 @@ using Android.Widget;
 using Newtonsoft.Json;
 using Xamarin.Essentials;
 using Android.Gms.Ads;
+using Android.Preferences;
 
 namespace vocab_tester
 {
@@ -98,8 +99,10 @@ namespace vocab_tester
 
             GenerateQuestion();
 
+            ISharedPreferences prefs = PreferenceManager.GetDefaultSharedPreferences(ApplicationContext);
+            string locale_saved_name = prefs.GetString("localeName", "");
             var locales = await TextToSpeech.GetLocalesAsync();
-            locale = locales.FirstOrDefault(l => l.Language == "eng");
+            locale = locales.FirstOrDefault(l => l.Name == locale_saved_name);
 
             FindViewById<Button>(Resource.Id.btnVerify).Click += btnVerify_Click;
             FindViewById<Button>(Resource.Id.btnNext).Click += btnNext_Click;

@@ -13,7 +13,8 @@
         android:id="@+id/linearLayout1"
         android:gravity="center_vertical|center_horizontal"
         android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp">
+        android:layout_marginRight="25dp"
+        android:layout_marginBottom="42.0dp">
         <TextView
             android:text="Lektor:"
             android:layout_width="wrap_content"
@@ -30,7 +31,8 @@
         android:text="ZAPISZ ZMIANY"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btnSave" />
+        android:id="@+id/btnSave"
+        android:layout_marginBottom="26.5dp" />
     <Button
         android:text="KONIEC"
         android:layout_width="wrap_content"
