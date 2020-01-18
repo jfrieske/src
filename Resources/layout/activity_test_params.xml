@@ -127,7 +127,7 @@
         android:layout_width="match_parent"
         android:layout_height="280dp"
         android:gravity="center_horizontal"
-        android:layout_marginTop="24.5dp">
+        android:layout_marginBottom="14.0dp">
         <TableLayout
             android:minWidth="25px"
             android:minHeight="25px"
@@ -175,7 +175,7 @@
                     p4:placeholder="true"
                     android:minWidth="30px"
                     android:minHeight="30px"
-                    android:id="@+id/textView1"
+                    android:id="@+id/textView5"
                     android:text="Ilość nowych słówek:"
                     android:layout_width="wrap_content"
                     android:layout_marginRight="11.5dp" />
@@ -186,6 +186,11 @@
                     android:descendantFocusability="blocksDescendants"/>
             </TableRow>
         </TableLayout>
+        <CheckBox
+            android:text="Utrwalanie odpowiedzi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/checkInputAnswers" />
         <Button
             android:text="START"
             android:layout_width="wrap_content"

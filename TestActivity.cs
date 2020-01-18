@@ -28,8 +28,10 @@ namespace vocab_tester
         private bool answer_is_checked;
         private ProgressBar progressAnswered;
         private int ACTIVITY_SUMMARY = 300;
+        private int ACTIVITY_TESTINPUT = 400;
         protected AdView mAdView;
         private DateTime duration_start;
+        private bool show_testinput;
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {
@@ -44,8 +46,9 @@ namespace vocab_tester
             int oldQuestionsCount = bundle.GetInt("oldQuestions", 0);
             int newQuestionsCount = bundle.GetInt("newQuestions", 0);
             List<long> categories = bundle.GetLongArray("categories").ToList();
-            questions = new List<TestHelper.Question>();
+            show_testinput = bundle.GetBoolean("show_testinput", false);
 
+            questions = new List<TestHelper.Question>();
             DictionaryDBHelper db_helper = new DictionaryDBHelper();
             List<DictionaryDBHelper.QuestionExt1> db_questions = db_helper.GetNewQuestions(newQuestionsCount, categories);
             db_questions.AddRange(db_helper.GetOldQuestions(oldQuestionsCount, categories));
@@ -143,13 +146,20 @@ namespace vocab_tester
             }
             else
             {
-                ShowSummary();
+                if (show_testinput)
+                {
+                    ShowTestInput();
+                }
+                else
+                {
+                    ShowSummary();
+                }
             }
         }
 
         private async void BtnClose_Click(object sender, EventArgs e)
         {
-            var answer = await MessageHelper.MessageBoxQuestion.Show(this, "Potwierdź", "Czy chcesz zakończyć test ?", "", "");
+            var answer = await MessageHelper.MessageBoxQuestion.Show(this, "Potwierdź", "Czy chcesz przerwać test ?", "", "");
             if (answer == MessageHelper.MessageBoxQuestion.MessageBoxResult.Positive)
             {
                 Close_Ok();
@@ -235,48 +245,10 @@ namespace vocab_tester
         }
 
         private void ShowSummary()
-        {
-            long duration = (long)Math.Truncate((DateTime.Now - duration_start).TotalSeconds);
-            long old_questions = 0;
-            long old_questions_answers = 0;
-            long old_questions_answer_ratio = 0;
-            long new_questions = 0;
-            long new_questions_answers = 0;            
-            long new_questions_answer_ratio = 0;
-
-
+        {            
             DictionaryDBHelper db_helper = new DictionaryDBHelper();
-            foreach (TestHelper.Question question in questions)
-            {
-                db_helper.UpdateQuestionStats(question.id, question.wrong_answers);
-                if (question.is_old)
-                {
-                    ++old_questions;
-                    old_questions_answers = old_questions_answers + question.wrong_answers + 1;
-                }
-                else
-                {
-                    ++new_questions;
-                    new_questions_answers = new_questions_answers + question.wrong_answers + 1;
-                }
-            }
-
-            if (old_questions > 0)
-            {
-                old_questions_answer_ratio = (long)Math.Truncate(((double)old_questions / (double)old_questions_answers) * 100.0);
-            }
-
-            if (new_questions > 0)
-            {
-                new_questions_answer_ratio = (long)Math.Truncate(((double)new_questions / (double)new_questions_answers) * 100.0);
-            }
-
-            long stats_id = db_helper.AddStats(old_questions, old_questions_answer_ratio, new_questions, new_questions_answer_ratio, duration);
-            foreach (TestHelper.Question question in questions)
-            {
-                db_helper.AddStatsQuestion(stats_id, question.id, question.wrong_answers, question.is_old);
-            }
-
+            db_helper.UpdateQuestionsStats(duration_start, questions);
+            
             var intent = new Intent(this, typeof(TestSummaryActivity));
             
             //Bundle bundle = new Bundle();
@@ -284,7 +256,20 @@ namespace vocab_tester
             //bundle.PutInt("newQuestions", npNewQuestions.Value);
             //bundle.put .PutLongArray("categories", checked_ids.ToArray());
             intent.PutExtra("questions", JsonConvert.SerializeObject(questions));
+            intent.PutExtra("parent_activity", "test");
             StartActivityForResult(intent, ACTIVITY_SUMMARY);
+        }
+
+        private void ShowTestInput()
+        {            
+            var intent = new Intent(this, typeof(TestInputActivity));
+
+            //Bundle bundle = new Bundle();
+            //bundle.PutInt("oldQuestions", npOldQuestions.Value);
+            //bundle.PutInt("newQuestions", npNewQuestions.Value);
+            //bundle.put .PutLongArray("categories", checked_ids.ToArray());
+            intent.PutExtra("questions", JsonConvert.SerializeObject(questions));
+            StartActivityForResult(intent, ACTIVITY_TESTINPUT);
         }
 
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
@@ -296,6 +281,17 @@ namespace vocab_tester
                 {
                     Close_Ok();
                 }                
+            }
+            if (requestCode == ACTIVITY_TESTINPUT)
+            {
+                if (resultCode == Result.Ok)
+                {
+                    Close_Ok();
+                }
+                if (resultCode == Result.Canceled)
+                {
+                    Close_Ok();
+                }
             }
 
         }

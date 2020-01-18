@@ -21,7 +21,9 @@ namespace vocab_tester
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_test_summary);
 
-            Generate_Table(JsonConvert.DeserializeObject<List<TestHelper.Question>>(Intent.GetStringExtra("questions")));
+            string parent_activity = Intent.GetStringExtra("parent_activity");
+            Generate_Table(JsonConvert.DeserializeObject<List<TestHelper.Question>>(Intent.GetStringExtra("questions")), parent_activity == "testinput");
+            
 
             FindViewById<Button>(Resource.Id.btnClose).Click += BtnClose_Click;
         }
@@ -32,7 +34,7 @@ namespace vocab_tester
             Finish();
         }
 
-        private void Generate_Table(List<TestHelper.Question> questions)
+        private void Generate_Table(List<TestHelper.Question> questions, bool show_wrong_inputs)
         {
             TableLayout table = FindViewById<TableLayout>(Resource.Id.tableAnswers);
             foreach (TestHelper.Question question in questions)
@@ -41,6 +43,10 @@ namespace vocab_tester
                 text_value.Text = question.value;
                 TextView text_wrong_answers = new TextView(this);
                 text_wrong_answers.Text = question.wrong_answers.ToString();
+                if (show_wrong_inputs)
+                {
+                    text_wrong_answers.Text += string.Format(" ({0})", question.wrong_inputs);
+                }
                 text_wrong_answers.Gravity=GravityFlags.CenterHorizontal;
                 if (question.wrong_answers > 0)
                 {

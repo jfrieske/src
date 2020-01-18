@@ -19,6 +19,7 @@ namespace vocab_tester
     {
         private NumberPicker npOldQuestions;
         private NumberPicker npNewQuestions;
+        private CheckBox checkInputAnswers;
         private ISharedPreferences prefs;
         private LinearLayout linearCategories;
         private int ACTIVITY_TEST = 300;
@@ -38,6 +39,9 @@ namespace vocab_tester
             npNewQuestions.MinValue = 0;
             npNewQuestions.MaxValue = 99;
             npNewQuestions.Value = prefs.GetInt("npNewQuestions_Value", 10);
+            checkInputAnswers = (CheckBox)FindViewById(Resource.Id.checkInputAnswers);
+            checkInputAnswers.Checked = prefs.GetBoolean("checkInputAnswers_Value", false);
+
 
             FindViewById<Button>(Resource.Id.btnClose).Click += BtnClose_Click;
             FindViewById<Button>(Resource.Id.btnTest).Click += BtnTest_Click;
@@ -253,6 +257,7 @@ namespace vocab_tester
             ISharedPreferencesEditor editor = prefs.Edit();
             editor.PutInt("npOldQuestions_Value", npOldQuestions.Value);
             editor.PutInt("npNewQuestions_Value", npNewQuestions.Value);
+            editor.PutBoolean("checkInputAnswers_Value", checkInputAnswers.Checked);
             editor.Commit();
 
             List<long> checked_ids = Category_Get_Checked();
@@ -266,6 +271,7 @@ namespace vocab_tester
             bundle.PutInt("oldQuestions", npOldQuestions.Value);
             bundle.PutInt("newQuestions", npNewQuestions.Value);
             bundle.PutLongArray("categories", checked_ids.ToArray());
+            bundle.PutBoolean("show_testinput", checkInputAnswers.Checked);
             intent.PutExtra("testParams", bundle);
             StartActivityForResult(intent, ACTIVITY_TEST);
         }

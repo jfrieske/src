@@ -28,6 +28,7 @@ namespace vocab_tester
             public long wrong_answers;
             public bool is_old;
             public List<Answer> answers;
+            public long wrong_inputs;
 
             public Question(long id, string name, bool is_old)
             {
@@ -37,6 +38,7 @@ namespace vocab_tester
                 wrong_answers = 0;
                 is_answered = false;
                 answers = new List<Answer>();
+                wrong_inputs = 0;
             }
 
             public void AddAnswer(string name, bool is_correct)

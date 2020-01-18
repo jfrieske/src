@@ -82,6 +82,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestActivity.cs" />
     <Compile Include="TestHelper.cs" />
+    <Compile Include="TestInputActivity.cs" />
     <Compile Include="TestParamsActivity.cs" />
     <Compile Include="TestSummaryActivity.cs" />
   </ItemGroup>
@@ -181,6 +182,11 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\activity_params.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\activity_test_input.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>

@@ -446,6 +446,50 @@ namespace vocab_tester
             db.Insert(newStatsQuestion);
         }
 
+        public void UpdateQuestionsStats(DateTime duration_start, List<TestHelper.Question> questions)
+        {
+            long duration = (long)Math.Truncate((DateTime.Now - duration_start).TotalSeconds);
+            long old_questions = 0;
+            long old_questions_answers = 0;
+            long old_questions_answer_ratio = 0;
+            long new_questions = 0;
+            long new_questions_answers = 0;
+            long new_questions_answer_ratio = 0;
+
+
+            DictionaryDBHelper db_helper = new DictionaryDBHelper();
+            foreach (TestHelper.Question question in questions)
+            {
+                db_helper.UpdateQuestionStats(question.id, question.wrong_answers);
+                if (question.is_old)
+                {
+                    ++old_questions;
+                    old_questions_answers = old_questions_answers + question.wrong_answers + 1;
+                }
+                else
+                {
+                    ++new_questions;
+                    new_questions_answers = new_questions_answers + question.wrong_answers + 1;
+                }
+            }
+
+            if (old_questions > 0)
+            {
+                old_questions_answer_ratio = (long)Math.Truncate(((double)old_questions / (double)old_questions_answers) * 100.0);
+            }
+
+            if (new_questions > 0)
+            {
+                new_questions_answer_ratio = (long)Math.Truncate(((double)new_questions / (double)new_questions_answers) * 100.0);
+            }
+
+            long stats_id = db_helper.AddStats(old_questions, old_questions_answer_ratio, new_questions, new_questions_answer_ratio, duration);
+            foreach (TestHelper.Question question in questions)
+            {
+                db_helper.AddStatsQuestion(stats_id, question.id, question.wrong_answers, question.is_old);
+            }
+        }
+
         #endregion
     }
 }
