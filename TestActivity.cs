@@ -204,6 +204,7 @@ namespace vocab_tester
 
         private async void Radio_Click(object sender, EventArgs e)
         {
+            FindViewById<Button>(Resource.Id.btnVerify).Visibility = ViewStates.Invisible;
             answer_is_checked = true;
             var settings = new SpeechOptions()
             {
@@ -211,6 +212,7 @@ namespace vocab_tester
             };
 
             await TextToSpeech.SpeakAsync(((RadioButton)sender).Text, settings);
+            FindViewById<Button>(Resource.Id.btnVerify).Visibility = ViewStates.Visible;
         }
 
         private void VerifyQuestion()
